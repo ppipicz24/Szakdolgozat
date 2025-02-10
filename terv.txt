@@ -1,0 +1,33 @@
+Szakdolgozat: 
+Backend rész:
+	- regisztráció
+	- login
+	- userek lekérdezése
+	- user adatok lekérdezése
+	- időpontok - admin
+	- időpontok lekérdezése - mind2
+	- időpontok törlése, ha már tárgytalan a dolog - admin
+	- időpontra jelentkezés - email kuldese
+	- időpontra jelentkezés törlése
+	- google calendarhoz hozzáadás
+
+  * későbbi fejlesztésekhez: lehetne google regisztrácio
+
+adatbázis:
+	- user: * username - string
+		* email - string
+		* password - sring - regex
+		* admin - bool
+		* telefonszam - string
+		* foglalt idopontok - date
+	
+
+	- rendezvenyek:	* neve - string
+			* idopont - date
+			* létszám - int - hány főre van szükség
+			* jelentkezettek szama ??
+			* isFull - bool - tele van-e
+			* nyelv - bool - magyar vagy sem
+
+	- kapcsolo tabla:	* rendezveny id
+				* user id

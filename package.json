@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "express": "^4.21.2",
+    "faker": "^6.6.6",
+    "fastify": "^5.2.1"
+  }
+}
