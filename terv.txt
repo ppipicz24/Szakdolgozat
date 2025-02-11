@@ -11,23 +11,39 @@ Backend rész:
 	- időpontra jelentkezés törlése
 	- google calendarhoz hozzáadás
 
-  * későbbi fejlesztésekhez: lehetne google regisztrácio
+  * későbbi fejlesztésekhez: lehetne google regisztráció
+
+Frontend rész:
+	- Login - Main - urlap
+	- Regisztráció - urlap
+	- Kijelentkezés
+	- Profil - adatok megtekintése és szerkesztése
+		* név
+		* felhasználónév
+		* telefonszám
+		* jelentkezések
+		* jelszó módosítás ???
+	- Kezdőlap - rendezvényekre jelentkezés
+	- Új rendezvény létrehozása - urlap - admin
 
 adatbázis:
 	- user: * username - string
-		* email - string
-		* password - sring - regex
-		* admin - bool
-		* telefonszam - string
-		* foglalt idopontok - date
+			* név - string
+			* email - string
+			* password - sring - regex
+			* admin - bool
+			* telefonszam - string
+			* foglalt idopontok - date
 	
 
 	- rendezvenyek:	* neve - string
-			* idopont - date
-			* létszám - int - hány főre van szükség
-			* jelentkezettek szama ??
-			* isFull - bool - tele van-e
-			* nyelv - bool - magyar vagy sem
+					* idopont -tol - date
+					* idopont -ig - date
+					* létszám - int - hány főre van szükség
+					* jelentkezettek szama ??
+					* isFull - bool - tele van-e
+					* nyelv - bool - magyar vagy sem
+					* korosztály
 
 	- kapcsolo tabla:	* rendezveny id
-				* user id
+						* user id
