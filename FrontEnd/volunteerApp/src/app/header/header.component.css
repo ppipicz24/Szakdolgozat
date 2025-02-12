@@ -1,0 +1,39 @@
+/* HEADER */
+.header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color:linen;
+
+  height: 50px;
+  padding: 0 10px;
+  position: relative;
+}
+
+/* NAVIGATION */
+.main-nav:link, .main-nav:visited{
+  color: black;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: bold;
+}
+.nav-list{
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.nav-link:link, .nav-link:visited{
+  display: inline-block;
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.nav-link:hover, .nav-link:active{
+  color:brown;
+}
+
+
