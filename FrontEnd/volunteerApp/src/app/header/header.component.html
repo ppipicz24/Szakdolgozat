@@ -1,25 +1,13 @@
-<p>header works!</p>
-<nav class="navbar navbar-expand-lg sticky-top">
-  <div class="container-fluid">
-      <!-- <a class="navbar-brand" href="#">Főoldal</a> -->
-      <a routerLink="/" class="navbar-brand">Főoldal</a>
-
-      <div class="moveRight">
-          <div class="collaps navbar-collapse" id="navbarToggler">
-
-              <ul class="nav navbar-nav navbar-right">
-                  <li routerLinkActive="active" class="nav-item">
-                      <a routerLink="/cart" class="nav-link">Kosár ()</a>
-                  </li>
-
-                  <li routerLinkActive="active" class="nav-item">
-                      <a class="nav-link" routerLink="/auth" >Bejelentkezés</a>
-                  </li>
-                  <li class="nav-item">
-                      <a class="nav-link" >Kijelentkezés</a>
-                  </li>
-              </ul>
-          </div>
-      </div>
-  </div>
-</nav>
+<header class="header">
+    <a routerLink="/" class="main-nav">Kezdőlap</a>
+    <nav class="nav">
+        <ul class="nav-list">
+            <li routerLinkActive="active"><a class="nav-link" routerLink="/profile">Profil</a></li>
+            <li routerLinkActive="active"><a class="nav-link" routerLink="/users">Felhasználók</a></li>
+            <li routerLinkActive="active"><a class="nav-link" routerLink="/newDate">Új eseméyny</a></li>
+            <li routerLinkActive="active"><a class="nav-link" routerLink="/auth">Bejelentkezés</a></li>
+            <li routerLinkActive="active"><a class="nav-link" routerLink="/auth">Regisztráció</a></li>
+            <li routerLinkActive="active"><a class="nav-link" routerLink="/auth">Kijelentkezés</a></li>
+        </ul>
+    </nav>
+</header>

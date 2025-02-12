@@ -10,5 +10,9 @@ import { NewDateComponent } from './new-date/new-date.component';
 export const routes: Routes = [
   {path: '', redirectTo: '/home', pathMatch: 'full'},
   {path: 'home', component: HomeComponent},
+  {path: 'profile', component: ProfileComponent},
+  {path: 'users', component: UsersComponent},
+  {path: 'auth', component: AuthComponent},
+
 
 ];
