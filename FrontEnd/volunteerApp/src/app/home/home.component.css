@@ -1,0 +1,8 @@
+.delete{
+  background-color: #c1121f;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}

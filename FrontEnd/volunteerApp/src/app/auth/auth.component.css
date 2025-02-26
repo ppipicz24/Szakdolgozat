@@ -1,74 +1,15 @@
-.container {
-    margin: 0 auto;
-    width: 600px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    background-color: linen;
-    border-radius: 10px;
-    padding: 20px;
-    margin-top: 20px;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-}
-
-.form{
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
 .login, .register{
   margin-top: 20px;
   height: auto;
 }
 
-h3{
-  font-size: 40px;
-  color: #6e2c00;
-  text-align: center;
-  margin-bottom: 50px
-}
-
-.text-input{
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  inline-size: 70%;
-  margin: 10px auto;
-}
-
-.text{
-  margin-bottom: 10px;
-  font-size: 16px;
-  font-weight: bold;
-  padding: 10px 15px;
-  border-radius: 15px;
-  border: 2px solid #6e2c0094;
-
-}
-
-
-.submit{
-  cursor: pointer;
-  font-size: 18px;
-  font-weight: bold;
-  padding: 10px;
-  border-radius: 20px;
-  background-color: #6e2c00;
-  color:white;
-  letter-spacing: 1px;
-  margin-bottom: 20px
-
-}
-
 p{
-  font-size: 17px;
-  letter-spacing: 1px;
-  color: #6e2c00;
+  font-size: 14px;
+  color: #000F7D;
   font-weight: bolder;
   padding: 5px;
   cursor: pointer;
+  letter-spacing: -0.25px;
 }
 
 

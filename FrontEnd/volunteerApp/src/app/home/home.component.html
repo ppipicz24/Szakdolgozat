@@ -1,1 +1,62 @@
-<p>home works!</p>
+<div class="container">
+  <h1 class="title">Események</h1>
+  <section class="filter-table">
+    <aside>
+      <button class="filter">Szűrés</button>
+    </aside>
+    <table class="table">
+      <tr class="table-header">
+        <th>Esemény neve</th>
+        <th>Dátum kezdete</th>
+        <th>Időtartam</th>
+        <th>Nyelv</th>
+        <th>Kor</th>
+        <th>Létszám</th>
+        <th></th>
+        <th></th>
+      </tr>
+      <tr>
+        <td>Angular Meetup</td>
+        <td>2019.01.01</td>
+        <td>3 óra</td>
+        <td>Magyar</td>
+        <td>18+</td>
+        <td>10</td>
+        <td>
+          <a class="btn" (click)="onClickApply(1)">{{
+            !isApplied ? "Jelentkezés" : "Lejelentkezés"
+          }}</a>
+        </td>
+        <td><a class="delete">Törlés</a></td>
+      </tr>
+      <tr>
+        <td>React Meetup</td>
+        <td>2019.01.01</td>
+        <td>24 óra</td>
+        <td>Angol</td>
+        <td>18+</td>
+        <td>10</td>
+        <td>
+          <a (click)="onClickApply(2)">{{
+            !isApplied ? "Jelentkezés" : "Lejelentkezés"
+          }}</a>
+        </td>
+        <td>Törlés</td>
+      </tr>
+      <tr>
+        <td>React Meetup</td>
+        <td>2019.01.01</td>
+        <td>2 óra</td>
+        <td>Angol</td>
+        <td>18+</td>
+        <td>10</td>
+        <td>
+          <a (click)="onClickApply(3)">{{
+            !isApplied ? "Jelentkezés" : "Lejelentkezés"
+          }}</a>
+        </td>
+        <td>Törlés</td>
+      </tr>
+    </table>
+  </section>
+</div>
