@@ -30,7 +30,7 @@
 
 .tooltip{
   position: absolute;
-  top: 45%;                 /* A függőleges középre igazításhoz */
+  top: 45%;
   right: 0px;
   transform: translateY(-50%);
   cursor: pointer;
