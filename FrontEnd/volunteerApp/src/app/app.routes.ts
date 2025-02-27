@@ -6,6 +6,7 @@ import { UsersComponent } from './users/users.component';
 import { AuthComponent } from './auth/auth.component';
 import { NewDateComponent } from './new-date/new-date.component';
 import { EditComponent } from './edit/edit.component';
+import { PasswordResetComponent } from './password-reset/password-reset.component';
 
 export const routes: Routes = [
   {path: '', redirectTo: '/home', pathMatch: 'full'},
@@ -14,7 +15,8 @@ export const routes: Routes = [
   {path: 'users', component: UsersComponent},
   {path: 'auth', component: AuthComponent},
   {path: 'new-date', component: NewDateComponent},
-  {path: 'edit', component: EditComponent}
+  {path: 'edit', component: EditComponent},
+  {path: 'password-reset', component: PasswordResetComponent}
 
 
 ];
