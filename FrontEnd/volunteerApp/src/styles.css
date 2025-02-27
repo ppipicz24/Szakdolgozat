@@ -1,9 +1,145 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
 *{
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 html{
-  background-color: rgba(250, 235, 215, 0.339);
+  background-color: #f0f9fa;
+  font-family: 'Inter', sans-serif;
+}
+
+h1{
+  padding: 0 10px;
+  margin: 20px auto;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #000F7D;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.form-container {
+  margin: 50px auto;
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #c8d2e5;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+}
+
+.form{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.text-input{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  inline-size: 70%;
+  margin: 10px auto;
+}
+
+.inp{
+  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 10px 15px;
+  border-radius: 15px;
+  border: 2px solid #A0ABD0;
+
+}
+
+.submit{
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 14px;
+  border-radius: 20px;
+  border: 3px solid #000F7D;
+  background-color: #283692;
+  color:#F0F9FA;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 20px
+}
+
+.filter-table{
+  width: 80%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.table{
+  border-spacing: 0;
+  border-collapse: collapse;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+}
+
+th, td{
+  padding: 16px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.table-header{
+  width: 50%;
+	background-color: #283692;
+  color: white;
+  font-size: 20px;
+  overflow-x:auto;
+}
+
+tr:nth-child(even){
+  background-color: #CEDCF2;
+}
+
+.btn{
+  background-color: #283692;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.filter{
+  background-color: #283692;
+  color: white;
+  font-size: 18px;
+  font-weight: 500;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.back{
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  
+  color: #000F7D;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+  font-size: 14px;
+  margin-bottom: 20px;
+
+}
+
+.icon{
+  width: 20px;
+  height: 15px;
+  color: #000F7D;
 }

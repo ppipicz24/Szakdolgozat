@@ -3,18 +3,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color:linen;
-
+  /* background-color:linen; */
   height: 50px;
   padding: 0 10px;
   position: relative;
+  border-bottom: 2px solid #C4D0DB;
 }
 
 /* NAVIGATION */
 .main-nav:link, .main-nav:visited{
-  color: black;
+  color: #000F7D;
   text-decoration: none;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: bold;
 }
 .nav-list{
@@ -27,13 +27,15 @@
 .nav-link:link, .nav-link:visited{
   display: inline-block;
   text-decoration: none;
-  color: black;
+  color: #000F7D;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 18px;
+
 }
 
 .nav-link:hover, .nav-link:active{
-  color:brown;
+  border-bottom: 2px solid #ABC0E9;
+  padding: 5px;
 }
 
 

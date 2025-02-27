@@ -1,1 +1,48 @@
-<p>users works!</p>
+<div class="container">
+  <h1 class="title">Felhasználók</h1>
+  <section class="filter-table">
+    <aside>
+      <button class="filter">Szűrés</button>
+    </aside>
+    <table class="table">
+      <tr class="table-header">
+        <th>Felhasználó neve</th>
+        <th>Felhasználónév</th>
+        <th>Email cím</th>
+        <th>Telefonszám</th>
+        <th>Admin</th>
+        <th></th>
+      </tr>
+      <tr>
+        <td>John Doe</td>
+        <td>
+          {{"john.doe"}}
+        </td>
+        <td>
+           {{"john.doe@valami.com"}}
+        </td>
+        <td>06 30 123 4567</td>
+        <td>Igen</td>
+        <td>
+          <a class="btn" routerLink="/edit">Módosítás</a>
+        </td>
+      </tr>
+      <tr>
+        <td>Jane Doe</td>
+        <td>
+          {{"jane.doe"}}
+        </td>
+        <td>
+          {{"jane.doe@valami.com"}}
+
+        </td>
+        <td>06 30 123 4567</td>
+        <td>Nem</td>
+        <td>
+          <a class="btn">Módosítás</a>
+        </td>
+      </tr>
+      </table>
+
+  </section>
+</div>

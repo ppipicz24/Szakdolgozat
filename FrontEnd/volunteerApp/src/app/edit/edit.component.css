@@ -1,0 +1,9 @@
+.buttons{
+  display: flex;
+  gap: 10px;
+}
+
+.submit{
+    text-decoration: none;
+    
+}

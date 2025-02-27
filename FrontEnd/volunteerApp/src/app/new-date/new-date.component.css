@@ -1,0 +1,59 @@
+.input-checkbox{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 20px;
+  inline-size: 70%;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.cInp{
+  width: 15px;
+  height: 15px;
+}
+
+.dInp{
+  width: 100%;
+
+}
+
+.text-input{
+  position: relative;
+}
+
+.section-tooltip{
+  position: relative;
+}
+
+
+.tooltip{
+  position: absolute;
+  top: 45%;
+  right: 0px;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.tooltip .tooltip-text{
+  visibility: hidden;
+  width: 150px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+
+  opacity: 0;
+  transition: opacity 1s;
+
+  /* Position the tooltip */
+  position: absolute;
+}
+
+.tooltip:hover .tooltip-text{
+  visibility: visible;
+  background-color: #000f7da4;
+  opacity: 1;
+}

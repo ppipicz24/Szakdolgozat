@@ -1,35 +1,35 @@
-<div class="container">
+<div class="form-container">
   <div class="login" *ngIf="isLoginMode">
-    <h3 class="title">Bejelentkezés</h3>
+    <h1 class="title">Bejelentkezés</h1>
     <form class="form">
       <div class="text-input">
-        <input type="text" name="username" id="username" placeholder="Felhasználónév" class="text" required email />
-        <input type="password" name="password" id="password" placeholder="Jelszó" class="text" ngModel required password
+        <input type="text" name="username" id="username" placeholder="Felhasználónév" class="inp" required email />
+        <input type="password" name="password" id="password" placeholder="Jelszó" class="inp" ngModel required password
         minlength="8" />
       </div>
-      <button type="submit" class="submit">Bejelentkezés</button>
+      <button type="submit" class="submit" (click)="onSubmit()">Bejelentkezés</button>
       <p class="forgot-password">Elfelejtett jelszó</p>
-      <p class="toRegister">Nincs fiókom, regisztrálok</p>
+      <p class="toRegister"><a (click)="onSwitchMode()"> Nincs fiókom, regisztrálok</a></p>
     </form>
   </div>
 
   <div class="register" *ngIf="!isLoginMode">
-    <h3 class="title">Regisztráció</h3>
+    <h1 class="title">Regisztráció</h1>
     <form class="form">
       <div class="text-input">
 
-        <input type="text" name="username" id="username" placeholder="Felhasználónév" class="text" ngModel required email minlength="3"
+        <input type="text" name="username" id="username" placeholder="Felhasználónév" class="inp" ngModel required email minlength="3"
         maxlength="50" />
-        <input type="text" name="name" id="name" placeholder="Név" class="text" ngModel required />
-        <input type="tel" name="phone" id="phone" placeholder="Telefonszám"  class="text"ngModel required />
-        <input type="email" name="email" id="email" placeholder="Email cím" class="text" ngModel required email />
-        <input type="password" name="password" id="password" placeholder="Jelszó" class="text" ngModel required password minlength="8"
+        <input type="text" name="name" id="name" placeholder="Név" class="inp" ngModel required />
+        <input type="tel" name="phone" id="phone" placeholder="Telefonszám"  class="inp"ngModel required />
+        <input type="email" name="email" id="email" placeholder="Email cím" class="inp" ngModel required email />
+        <input type="password" name="password" id="password" placeholder="Jelszó" class="inp" ngModel required password minlength="8"
         pattern="^(?=.*[A-Z])(?=.*\d).+$" />
-        <input type="password" name="password2" id="password2" placeholder="Jelszó újra" class="text" ngModel required password
+        <input type="password" name="password2" id="password2" placeholder="Jelszó megerősítése" class="inp" ngModel required password
         minlength="8" />
       </div>
       <button type="submit" class="submit" (click)="onSubmit()">Regisztráció</button>
-      <p class="toLogin">Van fiókom, bejelentkezek</p>
+      <p class="toLogin" ><a (click)="onSwitchMode()"> Van fiókom, bejelentkezek</a></p>
     </form>
   </div>
 </div>
