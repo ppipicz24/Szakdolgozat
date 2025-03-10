@@ -173,4 +173,23 @@ router.post('/logout', authenticateToken, (req, res) => {
   // The client should remove the token from storage
   res.status(200).json({ message: 'Logout successful' });
 });
+
+router.get('/users', async (req, res) => {
+  try {
+    const usersRef = dbUser;
+    const snapshot = await usersRef.once('value');
+    const users = [];
+    
+    snapshot.forEach((childSnapshot) => {
+      const user = childSnapshot.val();
+      // Don't send password
+      delete user.password;
+      users.push(user);
+    });
+    
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
 module.exports = router;

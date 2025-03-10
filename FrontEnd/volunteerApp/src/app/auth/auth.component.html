@@ -1,35 +1,77 @@
 <div class="form-container">
-  <div class="login" *ngIf="isLoginMode">
+  <div class="login" *ngIf="isLoginMode" >
     <h1 class="title">Bejelentkezés</h1>
-    <form class="form">
+    <form class="form" #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)">
       <div class="text-input">
-        <input type="text" name="username" id="username" placeholder="Felhasználónév" class="inp" required email />
+        <input type="text" name="username" id="username" placeholder="Felhasználónév" class="inp" ngModel required email />
         <input type="password" name="password" id="password" placeholder="Jelszó" class="inp" ngModel required password
         minlength="8" />
       </div>
-      <button type="submit" class="submit" (click)="onSubmit()">Bejelentkezés</button>
+      <button type="submit" class="submit">Bejelentkezés</button>
       <p class="forgot-password">Elfelejtett jelszó</p>
       <p class="toRegister"><a (click)="onSwitchMode()"> Nincs fiókom, regisztrálok</a></p>
+      <p class="help-block" align="center">{{error}}</p>
     </form>
   </div>
 
   <div class="register" *ngIf="!isLoginMode">
     <h1 class="title">Regisztráció</h1>
-    <form class="form">
+    <form class="form" #signUpForm="ngForm" (ngSubmit)="onSubmit(signUpForm)">
       <div class="text-input">
+        <!-- Felhasználónév -->
+        <input type="text" name="username" id="username" placeholder="Felhasználónév" class="inp"
+               ngModel required minlength="4" maxlength="50" #username="ngModel" />
+        <div class="error-message" *ngIf="(username.invalid && username.touched) || (formSubmitted && username.invalid)">
+          <span *ngIf="username.errors?.['required']">A mező kitöltése kötelező.</span>
+          <span *ngIf="username.errors?.['minlength'] || username.errors?.['maxlength']">A felhasználónév 4 és 50 karakter között lehet.</span>
+        </div>
 
-        <input type="text" name="username" id="username" placeholder="Felhasználónév" class="inp" ngModel required email minlength="3"
-        maxlength="50" />
-        <input type="text" name="name" id="name" placeholder="Név" class="inp" ngModel required />
-        <input type="tel" name="phone" id="phone" placeholder="Telefonszám"  class="inp"ngModel required />
-        <input type="email" name="email" id="email" placeholder="Email cím" class="inp" ngModel required email />
-        <input type="password" name="password" id="password" placeholder="Jelszó" class="inp" ngModel required password minlength="8"
-        pattern="^(?=.*[A-Z])(?=.*\d).+$" />
-        <input type="password" name="password2" id="password2" placeholder="Jelszó megerősítése" class="inp" ngModel required password
-        minlength="8" />
+        <!-- Név -->
+        <input type="text" name="name" id="name" placeholder="Név" class="inp"
+               ngModel required minlength="4" maxlength="50" #name="ngModel" />
+        <div class="error-message" *ngIf="(name.invalid && name.touched) || (formSubmitted && name.invalid)">
+          <span *ngIf="username.errors?.['required']">A mező kitöltése kötelező.</span>
+          <span *ngIf="name.errors?.['minlength'] || name.errors?.['maxlength']">A név 4 és 50 karakter között lehet.</span>
+        </div>
+
+        <!-- Telefonszám -->
+        <input type="tel" name="phone" id="phone" placeholder="Telefonszám" class="inp"
+               ngModel required pattern="^\+?[0-9\s-]{10,15}$" #phone="ngModel" />
+        <div class="error-message" *ngIf="(phone.invalid && phone.touched) || (formSubmitted && phone.invalid)">
+          <span *ngIf="phone.errors?.['required']">A mező kitöltése kötelező.</span>
+          <span *ngIf="phone.errors?.['pattern']">A telefonszám érvénytelen! Pl.: +36201234567 vagy 061234567.</span>
+        </div>
+
+        <!-- Email -->
+        <input type="email" name="email" id="email" placeholder="Email cím" class="inp"
+               ngModel required email #email="ngModel" />
+        <div class="error-message" *ngIf="(email.invalid && email.touched) || (formSubmitted && email.invalid)">
+          <span *ngIf="email.errors?.['required']">A mező kitöltése kötelező.</span>
+          <span *ngIf="email.errors?.['email']">Az email formátuma nem megfelelő.</span>
+        </div>
+
+        <!-- Jelszó -->
+        <input type="password" name="password" id="password" placeholder="Jelszó" class="inp"
+               ngModel required minlength="8" pattern="^(?=.*[A-Z])(?=.*\d).+$" #password="ngModel" />
+        <div class="error-message" *ngIf="(password.invalid && password.touched) || (formSubmitted && password.invalid)">
+          <span *ngIf="password.errors?.['required']">A mező kitöltése kötelező.</span>
+          <span *ngIf="password.errors?.['pattern'] || password2.errors?.['minlength']">A jelszónak tartalmaznia kell legalább egy nagybetűt, egy számot és legalább 8 karakternek kell lennie.</span>
+        </div>
+
+        <!-- Jelszó megerősítés -->
+        <input type="password" name="password2" id="password2" placeholder="Jelszó megerősítése" class="inp"
+               ngModel required minlength="8" #password2="ngModel" />
+        <div class="error-message" *ngIf="(password2.invalid && password2.touched) || (formSubmitted && password2.invalid)">
+          <span *ngIf="password2.errors?.['required']">A mező kitöltése kötelező.</span>
+          <span *ngIf="signUpForm.value.password !== signUpForm.value.password2">A két jelszó nem egyezik.</span>
+        </div>
+
       </div>
-      <button type="submit" class="submit" (click)="onSubmit()">Regisztráció</button>
-      <p class="toLogin" ><a (click)="onSwitchMode()"> Van fiókom, bejelentkezek</a></p>
+
+      <button type="submit" class="submit" >Regisztráció</button>
+      <p class="toLogin"><a (click)="onSwitchMode()">Van fiókom, bejelentkezek</a></p>
+      <p class="help-block">{{error}}</p>
     </form>
   </div>
 </div>
+

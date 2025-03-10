@@ -13,36 +13,23 @@
         <th>Admin</th>
         <th></th>
       </tr>
-      <tr>
-        <td>John Doe</td>
-        <td>
-          {{"john.doe"}}
-        </td>
-        <td>
-           {{"john.doe@valami.com"}}
-        </td>
-        <td>06 30 123 4567</td>
-        <td>Igen</td>
+      <tr *ngFor="let user of users">
+        <td>{{user.name}}</td>
+        <td>{{user.username}}</td>
+        <td>{{user.email}}</td>
+        <td>{{user.phoneNumber}}</td>
+        @if (user.role=="admin"){
+          <td>{{"igen"}}</td>
+        }
+        @else{
+          <td>{{"nem"}}</td>
+        }
         <td>
           <a class="btn" routerLink="/edit">Módosítás</a>
-        </td>
-      </tr>
-      <tr>
-        <td>Jane Doe</td>
-        <td>
-          {{"jane.doe"}}
-        </td>
-        <td>
-          {{"jane.doe@valami.com"}}
-
-        </td>
-        <td>06 30 123 4567</td>
-        <td>Nem</td>
-        <td>
-          <a class="btn">Módosítás</a>
         </td>
       </tr>
       </table>
 
   </section>
+
 </div>
