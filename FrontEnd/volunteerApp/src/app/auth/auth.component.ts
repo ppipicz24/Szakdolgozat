@@ -5,6 +5,7 @@ import { BehaviorSubject } from 'rxjs';
 import { AuthData } from './auth.model';
 import { FormsModule, ReactiveFormsModule, NgForm } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-auth',
@@ -13,7 +14,7 @@ import { BrowserModule } from '@angular/platform-browser';
   styleUrl: './auth.component.css',
 })
 export class AuthComponent implements OnInit {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   isLoginMode: boolean = true;
   error: string = '';
@@ -22,7 +23,6 @@ export class AuthComponent implements OnInit {
   users: AuthData[] = [];
 
 ngOnInit(): void {
-    this.authService.loadUser();
     this.authService.users$.subscribe(users => {
       this.users = users; // Amint az adat megérkezik, frissül a `users` tömb
       console.log("Users updated:", this.users);
@@ -49,8 +49,22 @@ ngOnInit(): void {
     const username = form.value.username;
 
     if (this.isLoginMode) {
-      console.log('Login');
-      //TODO Login
+
+      console.log("Bejelentkezési kísérlet:", username, password);
+
+      this.authService.login(username, password).subscribe({
+        next: () => {
+          console.log("Login sikeres!");
+          this.error = "";
+          this.router.navigate(['/']);
+          // window.location.reload();
+        },
+        error: (err) => {
+          console.error("Login hiba:", err);
+          this.error = err.message || "Hiba történt a bejelentkezés során.";
+        }
+      });
+
     } else {
       if (password !== password2) {
         this.error = 'A jelszavak nem egyeznek meg!';

@@ -12,6 +12,9 @@ export class AuthService{
   private usersSubject = new BehaviorSubject<AuthData[]>([]);
   users$ = this.usersSubject.asObservable(); // Külső komponensek ezt figyelik
 
+  private tokenSubject = new BehaviorSubject<string | null>(null);
+  token$ = this.tokenSubject.asObservable();
+
   fetchUser(url: string) {
     return this.httpClient.get<{ users: AuthData[] }>(url).pipe(
       tap(resData => console.log("API response:", resData)),
@@ -46,4 +49,42 @@ export class AuthService{
       }
     });
   }
+
+  login(username: string, password: string) {
+    console.log("Bejelentkezési kérés elküldve:", { username, password });
+
+    return this.httpClient.post<{ token: string }>(`http://localhost:3000/login`, { username, password }, {
+      observe: 'response' // Fontos, hogy a teljes választ figyeljük, ne csak a body-t
+    }).pipe(
+      tap(response => {
+        console.log("Login válasz:", response); // **Megnézzük a szerver válaszát**
+
+        const token = response.body?.token;
+        if (!token) {
+          throw new Error("Hibás szerver válasz! Token hiányzik.");
+        }
+
+        localStorage.setItem('token', token); // Token mentése a LocalStorage-ba
+        this.tokenSubject.next(token); // Token beállítása
+
+        // Ellenőrizzük, hogy a válasz tartalmazza-e az `Authorization` fejlécet
+        const authHeader = response.headers.get('Authorization');
+        console.log("Backend küldte Authorization Header-t?:", authHeader);
+      }),
+      catchError(error => {
+        console.error("Login sikertelen:", error);
+        return throwError(() => new Error("Hibás felhasználónév vagy jelszó!"));
+      })
+    );
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('token');
+  }
+
+  logout() {
+    localStorage.removeItem('token');
+    this.tokenSubject.next(null);
+  }
+
 }
