@@ -1,13 +1,22 @@
 <header class="header">
-    <a routerLink="/" class="main-nav">Kezdőlap</a>
-    <nav class="nav">
-        <ul class="nav-list">
-            <li routerLinkActive="active"><a class="nav-link" routerLink="/profile">Profil</a></li>
-            <li routerLinkActive="active"><a class="nav-link" routerLink="/users">Felhasználók</a></li>
-            <li routerLinkActive="active"><a class="nav-link" routerLink="/new-date">Új esemény</a></li>
-            <li routerLinkActive="active"><a class="nav-link" routerLink="/auth">Bejelentkezés</a></li>
-            <li routerLinkActive="active"><a class="nav-link" routerLink="/auth">Regisztráció</a></li>
-            <li routerLinkActive="active"><a class="nav-link" routerLink="/auth">Kijelentkezés</a></li>
-        </ul>
-    </nav>
+  <a routerLink="/" class="main-nav">Kezdőlap</a>
+  <nav class="nav">
+    <ul class="nav-list">
+      <li routerLinkActive="active"><a class="nav-link" routerLink="/profile">Profil</a></li>
+      <li routerLinkActive="active"><a class="nav-link" routerLink="/users">Felhasználók</a></li>
+      <li routerLinkActive="active"><a class="nav-link" routerLink="/new-date">Új esemény</a></li>
+
+      <!-- **Bejelentkezve: csak a kijelentkezés jelenik meg** -->
+      <li routerLinkActive="active" *ngIf="isAuth">
+        <a class="nav-link" (click)="onLogout()">Kijelentkezés</a>
+      </li>
+
+      <!-- **Nincs bejelentkezve: csak a Bejelentkezés és Regisztráció gombok látszanak** -->
+      <ng-container *ngIf="!isAuth">
+        <li routerLinkActive="active"><a class="nav-link" routerLink="/auth">Bejelentkezés</a></li>
+        <li routerLinkActive="active"><a class="nav-link" [routerLink]="['/auth']" [queryParams]="{ mode: 'register' }">Regisztráció</a></li>
+      </ng-container>
+    </ul>
+  </nav>
 </header>
+

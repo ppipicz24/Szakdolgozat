@@ -1,11 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from './auth.service';
-import { BehaviorSubject } from 'rxjs';
 import { AuthData } from './auth.model';
 import { FormsModule, ReactiveFormsModule, NgForm } from '@angular/forms';
-import { BrowserModule } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-auth',
@@ -14,7 +12,7 @@ import { Router } from '@angular/router';
   styleUrl: './auth.component.css',
 })
 export class AuthComponent implements OnInit {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router, private route: ActivatedRoute) {}
 
   isLoginMode: boolean = true;
   error: string = '';
@@ -26,6 +24,10 @@ ngOnInit(): void {
     this.authService.users$.subscribe(users => {
       this.users = users; // Amint az adat megérkezik, frissül a `users` tömb
       console.log("Users updated:", this.users);
+    });
+
+    this.route.queryParams.subscribe(params => {
+      this.isLoginMode = params['mode'] !== 'register'; // Ha mode=register, akkor regisztráció módba váltunk
     });
 }
 

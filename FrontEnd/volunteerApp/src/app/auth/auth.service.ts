@@ -12,6 +12,9 @@ export class AuthService{
   private usersSubject = new BehaviorSubject<AuthData[]>([]);
   users$ = this.usersSubject.asObservable(); // Külső komponensek ezt figyelik
 
+  private userSubject = new BehaviorSubject<any | null>(this.getUserFromStorage());
+  user$ = this.userSubject.asObservable();
+
   private tokenSubject = new BehaviorSubject<string | null>(null);
   token$ = this.tokenSubject.asObservable();
 
@@ -50,26 +53,30 @@ export class AuthService{
     });
   }
 
-  login(username: string, password: string) {
-    console.log("Bejelentkezési kérés elküldve:", { username, password });
+   // **Login metódus**
+   login(username: string, password: string) {
+    console.log("Bejelentkezési kérés:", { username, password });
 
-    return this.httpClient.post<{ token: string }>(`http://localhost:3000/login`, { username, password }, {
-      observe: 'response' // Fontos, hogy a teljes választ figyeljük, ne csak a body-t
-    }).pipe(
+    return this.httpClient.post<{ token: string, user: any }>(
+      `http://localhost:3000/login`,
+      { username, password },
+      { observe: 'response' }
+    ).pipe(
       tap(response => {
-        console.log("Login válasz:", response); // **Megnézzük a szerver válaszát**
+        console.log("Login response:", response);
 
         const token = response.body?.token;
-        if (!token) {
-          throw new Error("Hibás szerver válasz! Token hiányzik.");
+        const user = response.body?.user;
+
+        if (!token || !user) {
+          throw new Error("Hibás szerver válasz! Token vagy user hiányzik.");
         }
 
-        localStorage.setItem('token', token); // Token mentése a LocalStorage-ba
-        this.tokenSubject.next(token); // Token beállítása
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
 
-        // Ellenőrizzük, hogy a válasz tartalmazza-e az `Authorization` fejlécet
-        const authHeader = response.headers.get('Authorization');
-        console.log("Backend küldte Authorization Header-t?:", authHeader);
+        this.tokenSubject.next(token);
+        this.userSubject.next(user); // **Frissítjük a BehaviorSubject-et is**
       }),
       catchError(error => {
         console.error("Login sikertelen:", error);
@@ -78,13 +85,25 @@ export class AuthService{
     );
   }
 
-  getToken(): string | null {
-    return localStorage.getItem('token');
+  getUser() {
+    return this.userSubject.asObservable(); // **Reaktívan követjük a user változásait**
+  }
+
+  private getUserFromStorage() {
+    const userData = localStorage.getItem('user');
+    return userData ? JSON.parse(userData) : null;
   }
 
   logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     this.tokenSubject.next(null);
+    this.userSubject.next(null); // **Felhasználói adatok törlése**
   }
+
+  isLoggedIn(): boolean {
+    return !!localStorage.getItem('token');
+  }
+
 
 }
