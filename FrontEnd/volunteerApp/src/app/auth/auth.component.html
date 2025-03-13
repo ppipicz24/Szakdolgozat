@@ -45,7 +45,7 @@
         <input type="text" name="name" id="name" placeholder="Név" class="inp" ngModel required minlength="4"
           maxlength="50" #name="ngModel" />
         <div class="error-message" *ngIf="(name.invalid && name.touched) || (formSubmitted && name.invalid)">
-          <span *ngIf="username.errors?.['required']">A mező kitöltése kötelező.</span>
+          <span *ngIf="name.errors?.['required']">A mező kitöltése kötelező.</span>
           <span *ngIf="name.errors?.['minlength'] || name.errors?.['maxlength']">A név 4 és 50 karakter között
             lehet.</span>
         </div>

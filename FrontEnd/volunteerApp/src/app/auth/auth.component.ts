@@ -58,7 +58,7 @@ ngOnInit(): void {
         next: () => {
           console.log("Login sikeres!");
           this.error = "";
-          this.router.navigate(['/']);
+          this.router.navigate(['/home']);
           // window.location.reload();
         },
         error: (err) => {
