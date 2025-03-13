@@ -1,8 +1,9 @@
 import { inject, Injectable, signal } from "@angular/core";
 import { ErrorService } from "../shared/error.service";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { AuthData } from "./auth.model";
-import { BehaviorSubject, catchError, map, tap, throwError } from "rxjs";
+import { BehaviorSubject, catchError, map, Observable, tap, throwError } from "rxjs";
+import { Router } from "@angular/router";
 
 @Injectable({providedIn: 'root'})
 export class AuthService{
@@ -17,6 +18,20 @@ export class AuthService{
 
   private tokenSubject = new BehaviorSubject<string | null>(null);
   token$ = this.tokenSubject.asObservable();
+
+  private apiUrl = 'http://localhost:3000';
+
+  constructor(private router: Router){
+    const storedUser = this.getUserFromStorage();
+    if (storedUser) {
+      this.userSubject.next(storedUser);
+    }
+  }
+
+  private getUserFromStorage() {
+    const userData = localStorage.getItem('user');
+    return userData ? JSON.parse(userData) : null;
+  }
 
   fetchUser(url: string) {
     return this.httpClient.get<{ users: AuthData[] }>(url).pipe(
@@ -89,11 +104,6 @@ export class AuthService{
     return this.userSubject.asObservable(); // **Reaktívan követjük a user változásait**
   }
 
-  private getUserFromStorage() {
-    const userData = localStorage.getItem('user');
-    return userData ? JSON.parse(userData) : null;
-  }
-
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -105,5 +115,33 @@ export class AuthService{
     return !!localStorage.getItem('token');
   }
 
+  getProfile(): Observable<any> {
+    const token = localStorage.getItem('token');
 
+    if (!token) {
+      this.router.navigate(['/auth']); // Ha nincs token, átirányítás loginra
+      return new Observable();
+    }
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+
+    return this.httpClient.get(`${this.apiUrl}/profile`, { headers });
+  }
+
+  updateProfile(updatedData: any): Observable<any> {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    return this.httpClient.patch(`${this.apiUrl}/profile`, updatedData, { headers });
+  }
 }
