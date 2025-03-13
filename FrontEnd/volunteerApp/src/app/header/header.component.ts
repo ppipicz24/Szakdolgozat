@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -16,7 +16,7 @@ export class HeaderComponent implements OnInit {
   isAuth = false;
   private authSubscription!: Subscription; // **Feliratkozás kezelése**
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit() {
     this.authSubscription = this.authService.token$.subscribe(token => {
@@ -26,6 +26,7 @@ export class HeaderComponent implements OnInit {
 
   onLogout() {
     this.authService.logout();
+    this.router.navigate(['/auth']);
   }
 
   ngOnDestroy() {
