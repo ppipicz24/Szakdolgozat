@@ -9,19 +9,19 @@ import { AuthService } from '../auth/auth.service';
 })
 export class HomeComponent implements OnInit {
   isApplied: boolean = false;
-  username: any | null = null;
+  name: any | null = null;
 
   constructor(private authService: AuthService) {}
 
   ngOnInit() {
-    
+
     this.authService.getUser().subscribe(user => {
       console.log("Lekérdezett user:", user); // Debug log
 
-      if (user && typeof user === 'object' && user.username) {
-        this.username = user.username; // **Csak akkor állítsuk be, ha létezik**
+      if (user && typeof user === 'object' && user.name) {
+        this.name = user.name; // **Csak akkor állítsuk be, ha létezik**
       } else {
-        this.username = null; // **Ha kijelentkezik, töröljük a nevet**
+        this.name = null; // **Ha kijelentkezik, töröljük a nevet**
       }
     });
   }

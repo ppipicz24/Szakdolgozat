@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-edit',
-  imports: [RouterLink],
+  imports: [RouterLink, CommonModule, FormsModule],
   templateUrl: './edit.component.html',
   styleUrl: './edit.component.css'
 })
@@ -41,14 +43,25 @@ export class EditComponent {
     }
 
     this.authService.updateProfile(updatedData).subscribe({
-      next: (response:any) => {
+      next: (response) => {
         console.log("Profile updated successfully:", response);
         this.successMessage = "Profil sikeresen módosítva!";
+        this.errorMessage = null;
+
+        // **Frissítsük a fejléc állapotát, de csak ha a user adatok változtak**
+        this.authService.getProfile().subscribe({
+          next: (user) => {
+            if (user) {
+              this.authService.userSubject.next(user);
+            }
+          }
+        });
+
         setTimeout(() => this.router.navigate(['/profile']), 2000);
       },
-      error: (err:any) => {
+      error: (err) => {
         console.error("Error updating profile:", err);
-        this.errorMessage = "Nem sikerült frissíteni a profilodat.";
+        this.errorMessage = err.error?.message || "Nem sikerült frissíteni a profilodat.";
       }
     });
   }

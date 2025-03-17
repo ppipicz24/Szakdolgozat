@@ -17,7 +17,6 @@ router.use(bodyParser.json());
 const dbUser = admin.database().ref("users");
 
 const jwt_secret="6f3b3caf3d56762361999c8a3b635bcce51d54aad4170be9b08e19f4564768a5";
-let authToken = ""
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -41,6 +40,12 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+// send an email to the email address
+const sendEmail = (to, subject, text) => {
+};
+
+
+
 // Check if user is coordinator
 const isCoordinator = async (req, res, next) => {
   try {
@@ -60,17 +65,18 @@ const isCoordinator = async (req, res, next) => {
 
 router.post("/register", async (req, res) => {
   try {
-    const { name, username, email, password, phoneNumber, role } = req.body;
+    const { name, email, password, phoneNumber, role } = req.body;
 
     // **Validáció: Minden mező kitöltve van-e?**
-    if (!name || !username || !password || !phoneNumber || !email) {
+    if (!name || !password || !phoneNumber || !email) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
     // **Felhasználónév és email hosszának ellenőrzése**
-    if (username.length < 4) {
-      return res.status(400).json({ message: "Username must be at least 4 characters long" });
+    if (name.length < 3) {
+      return res.status(400).json({ message: "Name must be at least 3 characters long" });
     }
+
     if (email.length < 6 || !email.includes("@")) {
       return res.status(400).json({ message: "Invalid email format" });
     }
@@ -79,12 +85,6 @@ router.post("/register", async (req, res) => {
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
     if (!passwordRegex.test(password)) {
       return res.status(400).json({ message: "Password must be at least 8 characters long, contain 1 uppercase letter and 1 number" });
-    }
-
-    // **Felhasználónév és email egyediségének ellenőrzése**
-    const usernameSnapshot = await dbUser.orderByChild("username").equalTo(username).once("value");
-    if (usernameSnapshot.exists()) {
-      return res.status(400).json({ message: "Username already exists" });
     }
 
     const emailSnapshot = await dbUser.orderByChild("email").equalTo(email).once("value");
@@ -102,7 +102,6 @@ router.post("/register", async (req, res) => {
     await newUserRef.set({
       id: userId,
       name,
-      username,
       password: hashedPassword,
       phoneNumber,
       email,
@@ -118,17 +117,17 @@ router.post("/register", async (req, res) => {
 
 router.post('/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
     // **Validáció: kitöltött mezők**
-    if (!username || !password) {
-      return res.status(400).json({ message: 'Username and password are required' });
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
     }
 
     // **Felhasználó keresése**
-    const snapshot = await dbUser.orderByChild('username').equalTo(username).once('value');
+    const snapshot = await dbUser.orderByChild('email').equalTo(email).once('value');
     if (!snapshot.exists()) {
-      return res.status(401).json({ message: 'Invalid username or password' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     // **Felhasználó adatainak lekérése**
@@ -141,12 +140,12 @@ router.post('/login', async (req, res) => {
     // **Jelszó ellenőrzése**
     const validPassword = await bcrypt.compare(password, userData.password);
     if (!validPassword) {
-      return res.status(401).json({ message: 'Invalid username or password' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     // **Token generálás**
     const token = jwt.sign(
-      { id: userId, username: userData.username, role: userData.role },
+      { id: userId, role: userData.role, name: userData.name, email: userData.email, phoneNumber: userData.phoneNumber },
       jwt_secret,
       { expiresIn: '24h' }
     );
@@ -157,7 +156,6 @@ router.post('/login', async (req, res) => {
       user: {
         id: userId,
         name: userData.name,
-        username: userData.username,
         email: userData.email,
         role: userData.role
       }
@@ -173,7 +171,54 @@ router.post('/logout', authenticateToken, (req, res) => {
   res.status(200).json({ message: 'Logout successful' });
 });
 
-router.get('/users', async (req, res) => {
+//forgot password
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // **Validáció: kitöltött mező**
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    // **Email ellenőrzése**
+    if (!email.includes('@') || email.length < 6) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+
+    // **Felhasználó keresése**
+    const snapshot = await dbUser.orderByChild('email').equalTo(email).once('value');
+    if (!snapshot.exists()) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // **Felhasználó adatainak lekérése**
+    let userId, userData;
+    snapshot.forEach(childSnapshot => {
+      userId = childSnapshot.key;
+      userData = childSnapshot.val();
+    });
+
+    // **Új jelszó generálása**
+    const newPassword = Math.random().toString(36).slice(-8);
+
+    // **Jelszó titkosítása**
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // **Jelszó frissítése az adatbázisban**
+    await dbUser.child(userId).update({ password: hashedPassword });
+
+    // **Jelszó küldése emailben**
+    sendEmail(userData.email, 'Password Reset', `Your new password is: ${newPassword}`);
+
+    res.status(200).json({ message: 'New password sent to your email' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+
+router.get('/users',authenticateToken,  async (req, res) => {
   try {
     const usersRef = dbUser;
     const snapshot = await usersRef.once('value');

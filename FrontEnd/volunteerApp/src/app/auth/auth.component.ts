@@ -48,13 +48,12 @@ ngOnInit(): void {
     const password2 = form.value.password2;
     const name = form.value.name;
     const phoneNumber = form.value.phone;
-    const username = form.value.username;
 
     if (this.isLoginMode) {
 
-      console.log("Bejelentkezési kísérlet:", username, password);
+      console.log("Bejelentkezési kísérlet:", email, password);
 
-      this.authService.login(username, password).subscribe({
+      this.authService.login(email, password).subscribe({
         next: () => {
           console.log("Login sikeres!");
           this.error = "";
@@ -77,7 +76,6 @@ ngOnInit(): void {
       console.log('Register');
       const newUser: AuthData = {
         id: Math.random().toString(), // Ideiglenes azonosító, a backend generálhat valódit
-        username: username,
         name: name,
         email: email,
         password: password,

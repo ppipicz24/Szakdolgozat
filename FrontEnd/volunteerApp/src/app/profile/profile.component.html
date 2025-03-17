@@ -3,13 +3,11 @@
   <h1 class="title">Profil</h1>
   <div class="user-data">
     <h4>Felhasználó neve</h4>
-    <p>{{user.name}}</p>
-    <h4>Felhasználónév</h4>
-    <p>{{user.username}}</p>
+    <p>{{user?.name}}</p>
     <h4>Email cím</h4>
-    <p>{{user.email}}</p>
+    <p>{{user?.email}}</p>
     <h4>Telefonszám</h4>
-    <p>{{user.phoneNumber}}</p>
+    <p>{{user?.phoneNumber}}</p>
   </div>
   <div class="buttons">
     <button class="btn" routerLink="/edit">Módosítás</button>

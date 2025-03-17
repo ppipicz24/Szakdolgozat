@@ -13,7 +13,7 @@ export class AuthService{
   private usersSubject = new BehaviorSubject<AuthData[]>([]);
   users$ = this.usersSubject.asObservable(); // Külső komponensek ezt figyelik
 
-  private userSubject = new BehaviorSubject<any | null>(this.getUserFromStorage());
+  userSubject = new BehaviorSubject<any | null>(this.getUserFromStorage());
   user$ = this.userSubject.asObservable();
 
   private tokenSubject = new BehaviorSubject<string | null>(null);
@@ -45,7 +45,7 @@ export class AuthService{
   }
 
   loadUser() {
-    this.fetchUser('http://localhost:3000/users').subscribe({
+    this.fetchUser(`${this.apiUrl}/users`).subscribe({
       next: (users: any) => {
         console.log("Users loaded:", users);
         this.usersSubject.next(users); // Frissítjük a BehaviorSubject-et
@@ -55,7 +55,7 @@ export class AuthService{
   }
 
   addUser(user: AuthData){
-    return this.httpClient.post<AuthData>('http://localhost:3000/register', user).subscribe({
+    return this.httpClient.post<AuthData>(`${this.apiUrl}/register`, user).subscribe({
       next: (user) => {
         console.log("User added:", user);
         const currentUsers = this.usersSubject.value; // **Megkapjuk a jelenlegi usereket**
@@ -69,12 +69,12 @@ export class AuthService{
   }
 
    // **Login metódus**
-   login(username: string, password: string) {
-    console.log("Bejelentkezési kérés:", { username, password });
+   login(email: string, password: string) {
+    console.log("Bejelentkezési kérés:", { email, password });
 
     return this.httpClient.post<{ token: string, user: any }>(
-      `http://localhost:3000/login`,
-      { username, password },
+      `${this.apiUrl}/login`,
+      { email, password },
       { observe: 'response' }
     ).pipe(
       tap(response => {
@@ -134,14 +134,32 @@ export class AuthService{
     const token = localStorage.getItem('token');
 
     if (!token) {
-      throw new Error("No authentication token found");
+      throw new Error('No authentication token found');
     }
 
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     });
 
-    return this.httpClient.patch(`${this.apiUrl}/profile`, updatedData, { headers });
+    return this.httpClient
+      .patch(`${this.apiUrl}/profile`, updatedData, { headers })
+      .pipe(
+        tap((response) => {
+          console.log('Profile updated successfully:', response);
+
+          // **Frissítsük a helyi user adatokat**
+          const storedUser = localStorage.getItem('user');
+          if (storedUser) {
+            const user = JSON.parse(storedUser);
+            const updatedUser = { ...user, ...updatedData }; // **Csak a módosított mezők frissülnek**
+
+            // **Frissített user mentése és behavior subject frissítése**
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            this.userSubject.next(updatedUser);
+          }
+        })
+      );
   }
+
 }

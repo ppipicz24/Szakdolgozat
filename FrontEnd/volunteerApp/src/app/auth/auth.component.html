@@ -4,11 +4,11 @@
     <form class="form" #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)">
       <div class="text-input">
         <!-- Felhasználónév -->
-        <input type="text" name="username" id="username" placeholder="Felhasználónév" class="inp" ngModel required
-          #username="ngModel" />
+        <input type="email" name="email" id="email" placeholder="Email cím" class="inp" ngModel required
+          #email="ngModel" />
         <div class="error-message"
-          *ngIf="(username.invalid && username.touched) || (formSubmitted && username.invalid)">
-          <span *ngIf="username.errors?.['required']">A mező kitöltése kötelező.</span>
+          *ngIf="(email.invalid && email.touched) || (formSubmitted && email.invalid)">
+          <span *ngIf="email.errors?.['required']">A mező kitöltése kötelező.</span>
         </div>
 
         <!-- Jelszó -->
@@ -31,16 +31,6 @@
     <h1 class="title">Regisztráció</h1>
     <form class="form" #signUpForm="ngForm" (ngSubmit)="onSubmit(signUpForm)">
       <div class="text-input">
-        <!-- Felhasználónév -->
-        <input type="text" name="username" id="username" placeholder="Felhasználónév" class="inp" ngModel required
-          minlength="4" maxlength="50" #username="ngModel" />
-        <div class="error-message"
-          *ngIf="(username.invalid && username.touched) || (formSubmitted && username.invalid)">
-          <span *ngIf="username.errors?.['required']">A mező kitöltése kötelező.</span>
-          <span *ngIf="username.errors?.['minlength'] || username.errors?.['maxlength']">A felhasználónév 4 és 50
-            karakter között lehet.</span>
-        </div>
-
         <!-- Név -->
         <input type="text" name="name" id="name" placeholder="Név" class="inp" ngModel required minlength="4"
           maxlength="50" #name="ngModel" />
