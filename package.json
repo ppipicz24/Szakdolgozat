@@ -3,6 +3,7 @@
     "express": "^4.21.2",
     "express-generator": "^4.16.1",
     "faker": "^6.6.6",
-    "fastify": "^5.2.1"
+    "fastify": "^5.2.1",
+    "nodemailer": "^6.10.0"
   }
 }

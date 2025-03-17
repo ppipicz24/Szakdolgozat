@@ -35,6 +35,10 @@ ngOnInit(): void {
     this.isLoginMode = !this.isLoginMode;
   }
 
+  onForgetPassword() {
+    this.router.navigate(['/forget-password']);
+  }
+
   onSubmit(form: NgForm) {
     this.formSubmitted = true;
 

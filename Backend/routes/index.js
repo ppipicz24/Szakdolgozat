@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken');
 const admin = require("firebase-admin");
 const serviceAccount = require("./../firebase-adminsdk.json");
 
-
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL:
@@ -41,10 +40,31 @@ const authenticateToken = (req, res, next) => {
 };
 
 // send an email to the email address
-const sendEmail = (to, subject, text) => {
+const nodemailer = require("nodemailer");
+
+const sendEmail = async (to, subject, text) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: "p.szakdolgozat@gmail.com",
+        pass: "sodp wshz xocr lcpu",
+      },
+    });
+
+    const mailOptions = {
+      from: "your-email@gmail.com",
+      to,
+      subject,
+      text,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully!");
+  } catch (error) {
+    console.error("Error sending email:", error);
+  }
 };
-
-
 
 // Check if user is coordinator
 const isCoordinator = async (req, res, next) => {
@@ -86,6 +106,7 @@ router.post("/register", async (req, res) => {
     if (!passwordRegex.test(password)) {
       return res.status(400).json({ message: "Password must be at least 8 characters long, contain 1 uppercase letter and 1 number" });
     }
+
 
     const emailSnapshot = await dbUser.orderByChild("email").equalTo(email).once("value");
     if (emailSnapshot.exists()) {
@@ -217,8 +238,48 @@ router.post('/forgot-password', async (req, res) => {
   }
 });
 
+//new password
+router.post('/new-password', authenticateToken, async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
 
-router.get('/users',authenticateToken,  async (req, res) => {
+    // **Validáció: kitöltött mező**
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ message: 'Old password and new password are required' });
+    }
+
+    // **Felhasználó keresése**
+    const userRef = dbUser.child(req.user.id);
+    const snapshot = await userRef.once('value');
+    const userData = snapshot.val();
+    
+    // **Jelszó ellenőrzése**
+    const validPassword = await bcrypt.compare(oldPassword, userData.password);
+    if (!validPassword) {
+      return res.status(401).json({ message: 'Invalid old password' });
+    }
+
+    // **Jelszó ellenőrzés (legalább 8 karakter, 1 nagybetű, 1 szám)**
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters long, contain 1 uppercase letter and 1 number' });
+    }
+
+    // **Jelszó titkosítása**
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // **Jelszó frissítése az adatbázisban**
+    await dbUser.child(req.user.id).update({ password: hashedPassword });
+
+    res.status(200).json({ message: 'Password updated successfully' });
+  }
+  catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+
+router.get('/users',  async (req, res) => {
   try {
     const usersRef = dbUser;
     const snapshot = await usersRef.once('value');

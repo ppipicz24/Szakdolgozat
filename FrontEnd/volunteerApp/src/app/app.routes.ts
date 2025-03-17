@@ -7,6 +7,7 @@ import { AuthComponent } from './auth/auth.component';
 import { NewDateComponent } from './new-date/new-date.component';
 import { EditComponent } from './edit/edit.component';
 import { PasswordResetComponent } from './password-reset/password-reset.component';
+import { ForgetPasswordComponent } from './forget-password/forget-password.component';
 
 export const routes: Routes = [
   {path: '', redirectTo: '/home', pathMatch: 'full'},
@@ -16,7 +17,8 @@ export const routes: Routes = [
   {path: 'auth', component: AuthComponent},
   {path: 'new-date', component: NewDateComponent},
   {path: 'edit', component: EditComponent},
-  {path: 'password-reset', component: PasswordResetComponent}
+  {path: 'password-reset', component: PasswordResetComponent},
+  {path: 'forget-password', component: ForgetPasswordComponent}
 
 
 ];

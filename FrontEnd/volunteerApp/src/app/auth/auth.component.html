@@ -21,7 +21,8 @@
         </div>
       </div>
       <button type="submit" class="submit">Bejelentkezés</button>
-      <p class="forgot-password">Elfelejtett jelszó</p>
+      <p class="forgot-password"><a (click)="onForgetPassword()"routerLink="/forget-password">Elfelejtett jelszó</a>
+        </p>
       <p class="toRegister"><a (click)="onSwitchMode()"> Nincs fiókom, regisztrálok</a></p>
       <p class="help-block" align="center">{{error}}</p>
     </form>
