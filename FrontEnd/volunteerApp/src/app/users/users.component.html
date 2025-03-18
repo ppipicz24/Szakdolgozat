@@ -7,7 +7,6 @@
     <table class="table">
       <tr class="table-header">
         <th>Felhasználó neve</th>
-        <th>Felhasználónév</th>
         <th>Email cím</th>
         <th>Telefonszám</th>
         <th>Admin</th>
@@ -15,7 +14,6 @@
       </tr>
       <tr *ngFor="let user of users">
         <td>{{user.name}}</td>
-        <td>{{user.username}}</td>
         <td>{{user.email}}</td>
         <td>{{user.phoneNumber}}</td>
         @if (user.role=="admin"){

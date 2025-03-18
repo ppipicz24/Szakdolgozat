@@ -4,6 +4,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const admin = require("firebase-admin");
 const serviceAccount = require("./../firebase-adminsdk.json");
+const nodemailer = require("nodemailer");
+
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -14,6 +16,7 @@ admin.initializeApp({
 const router = express();
 router.use(bodyParser.json());
 const dbUser = admin.database().ref("users");
+const dbEvents = admin.database().ref("events");
 
 const jwt_secret="6f3b3caf3d56762361999c8a3b635bcce51d54aad4170be9b08e19f4564768a5";
 
@@ -39,8 +42,7 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// send an email to the email address
-const nodemailer = require("nodemailer");
+
 
 const sendEmail = async (to, subject, text) => {
   try {
@@ -353,6 +355,56 @@ router.patch('/profile', authenticateToken, async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
+
+router.post('/events', authenticateToken, async (req, res) => {
+  try{
+    const {name, date, time, numberOfPeople, age, isHungarian} = req.body;
+    if (!name || !date || !time || !numberOfPeople || !age || isHungarian == null) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    if(name.length < 5) {
+      return res.status(400).json({ message: 'Name must be at least 5 characters long' });
+    }
+
+    if (numberOfPeople < 1) {
+      return res.status(400).json({ message: 'Number of people must be at least 1' });
+    }
+
+    if (age < 0) {
+      return res.status(400).json({ message: 'Age must be at least 0' });
+    }
+
+    if(date < new Date().toISOString()) {
+      return res.status(400).json({ message: 'Date must be in the future' });
+    }
+
+    if (time < 0 || time > 24) {
+      return res.status(400).json({ message: 'Time must be between 0 and 24' });
+    }
+
+
+
+
+    const newEventRef = dbEvents.push();
+    const eventId = newEventRef.key;
+
+    await newEventRef.set({
+      id: eventId,
+      name,
+      date,
+      time,
+      numberOfPeople,
+      age,
+      isHungarian,
+      createdAt: admin.database.ServerValue.TIMESTAMP,
+    });
+    res.status(201).json({ message: 'Event created successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+
+  }
+})
 
 
 module.exports = router;
