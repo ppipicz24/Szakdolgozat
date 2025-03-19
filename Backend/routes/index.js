@@ -280,7 +280,7 @@ router.post('/new-password', authenticateToken, async (req, res) => {
   }
 });
 
-
+//get users
 router.get('/users',  async (req, res) => {
   try {
     const usersRef = dbUser;
@@ -300,6 +300,7 @@ router.get('/users',  async (req, res) => {
   }
 });
 
+//lekérjuk a felhasználó adatait
 router.get('/profile', authenticateToken, async (req, res) => {
   try {
     const userRef = dbUser.child(req.user.id);
@@ -358,7 +359,7 @@ router.patch('/profile', authenticateToken, async (req, res) => {
 
 router.post('/events', authenticateToken, async (req, res) => {
   try{
-    const {name, date, time, numberOfPeople, age, isHungarian} = req.body;
+    const {name, date, time, numberOfPeople, age, isHungarian, isFull} = req.body;
     if (!name || !date || !time || !numberOfPeople || !age || isHungarian == null) {
       return res.status(400).json({ message: 'All fields are required' });
     }
@@ -383,8 +384,9 @@ router.post('/events', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Time must be between 0 and 24' });
     }
 
-
-
+    if (isFull == null) {
+      return res.status(400).json({ message: 'isFull must be true or false' });
+    }
 
     const newEventRef = dbEvents.push();
     const eventId = newEventRef.key;
@@ -397,14 +399,31 @@ router.post('/events', authenticateToken, async (req, res) => {
       numberOfPeople,
       age,
       isHungarian,
+      isFull,
       createdAt: admin.database.ServerValue.TIMESTAMP,
     });
     res.status(201).json({ message: 'Event created successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
-
   }
 })
+
+router.get('/events', authenticateToken, async (req, res) => {
+  try {
+    const eventsRef = dbEvents;
+    const snapshot = await eventsRef.once('value');
+    const events = [];
+    
+    snapshot.forEach((childSnapshot) => {
+      const event = childSnapshot.val();
+      events.push(event);
+    });
+    
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
 
 
 module.exports = router;

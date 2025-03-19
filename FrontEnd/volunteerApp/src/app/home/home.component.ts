@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
+import { EventModel } from '../new-date/event.model';
+import { EventService } from './event.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-home',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
@@ -11,7 +14,9 @@ export class HomeComponent implements OnInit {
   isApplied: boolean = false;
   name: any | null = null;
 
-  constructor(private authService: AuthService) {}
+  events: EventModel[] = []
+
+  constructor(private authService: AuthService, private eventService: EventService) {}
 
   ngOnInit() {
 
@@ -23,6 +28,12 @@ export class HomeComponent implements OnInit {
       } else {
         this.name = null; // **Ha kijelentkezik, töröljük a nevet**
       }
+    });
+
+    this.eventService.loadEvents();
+    this.eventService.events$.subscribe(events => {
+      this.events = events; // Amint az adat megérkezik, frissül az `events` tömb
+      console.log("Events updated:", this.events);
     });
   }
 
