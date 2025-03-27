@@ -14,7 +14,7 @@
         <th>Kor</th>
         <th>Létszám</th>
         <th></th>
-        <th></th>
+        <th *ngIf="isAdmin"></th>
       </tr>
       <tr *ngFor="let event of events">
         <td>{{event.name}}</td>
@@ -24,11 +24,12 @@
         <td>{{event.age}}</td>
         <td>{{event.numberOfPeople}}</td>
         <td>
-          <a class="btn" (click)="onClickApply(event.id)">{{
-            !isApplied ? "Jelentkezés" : "Lejelentkezés"
-          }}</a>
+          <a class="btn" (click)="onClickApply(event.id)">
+            {{ registeredEventIds.has(event.id) ? "Lejelentkezés" : "Jelentkezés" }}
+          </a>
         </td>
-        <td><a class="delete" (click)="deleteEvent(event.id)">Törlés</a></td>
+
+        <td *ngIf="isAdmin"><a class="delete" (click)="deleteEvent(event.id)">Törlés</a></td>
       </tr>
     </table>
   </section>

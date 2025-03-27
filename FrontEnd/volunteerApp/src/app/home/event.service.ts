@@ -10,6 +10,8 @@ import { Router } from "@angular/router";
 })
 export class EventService {
     private apiUrl = 'http://localhost:3000/events';
+
+    private myEventsUrl = 'http://localhost:3000/my-events';
     private errorService = inject(ErrorService);
 
     private eventSubject = new BehaviorSubject<EventModel[]>([]);
@@ -95,4 +97,73 @@ export class EventService {
                 this.errorService.showError(err.message);}
         });
     }
+
+    registerToEvent(eventId: string) {
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        this.router.navigate(['/auth']);
+        return new Observable();
+      }
+
+      const headers = new HttpHeaders({
+        Authorization: `Bearer ${token}`
+      });
+
+      return this.http.post(`${this.apiUrl}/${eventId}/register`, {}, { headers }).pipe(
+        tap(() => {
+          console.log(`Successfully registered to event: ${eventId}`);
+        }),
+        catchError(err => {
+          console.error("Error registering to event:", err);
+          this.errorService.showError(err.message);
+          return throwError(() => new Error(err.message));
+        })
+      );
+    }
+
+    unregisterFromEvent(eventId: string): Observable<any> {
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        this.router.navigate(['/auth']);
+        return new Observable();
+      }
+
+      const headers = new HttpHeaders({
+        Authorization: `Bearer ${token}`
+      });
+
+      return this.http.delete(`${this.apiUrl}/${eventId}/unregister`, { headers }).pipe(
+        tap(() => console.log("Lejelentkezés sikeres:", eventId)),
+        catchError(error => {
+          this.errorService.showError(error.message);
+          return throwError(() => new Error(error.message));
+        })
+      );
+    }
+
+
+    getMyEventIds(): Observable<string[]> {
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        this.router.navigate(['/auth']);
+        return new Observable<string[]>();
+      }
+
+      const headers = new HttpHeaders({
+        Authorization: `Bearer ${token}`
+      });
+
+      return this.http.get<string[]>(`${this.myEventsUrl}`, { headers }).pipe(
+        tap(ids => console.log("✔️ Saját események ID-i:", ids)),
+        catchError(error => {
+          this.errorService.showError(error.message);
+          return throwError(() => new Error(error.message));
+        })
+      );
+    }
+
+
 }
