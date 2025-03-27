@@ -42,6 +42,7 @@ export class NewDateComponent implements OnInit {
     const isHungarian = form.value.isHungarian;
 
     const newEvent: EventModel = {
+      id: Math.random().toString(),
       name: name,
       date: date,
       time: time,

@@ -38,9 +38,16 @@ export class HomeComponent implements OnInit {
   }
 
 
-  onClickApply(index: number) {
+  onClickApply(index: string) {
 
     this.isApplied = !this.isApplied;
   }
+
+  deleteEvent(index: string) {
+    this.eventService.deleteEvent(index)
+    this.eventService.loadEvents();
+    
+  }
+
 
 }

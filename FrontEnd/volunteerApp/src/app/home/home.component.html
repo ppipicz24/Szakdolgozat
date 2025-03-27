@@ -24,11 +24,11 @@
         <td>{{event.age}}</td>
         <td>{{event.numberOfPeople}}</td>
         <td>
-          <a class="btn" (click)="onClickApply(1)">{{
+          <a class="btn" (click)="onClickApply(event.id)">{{
             !isApplied ? "Jelentkezés" : "Lejelentkezés"
           }}</a>
         </td>
-        <td><a class="delete">Törlés</a></td>
+        <td><a class="delete" (click)="deleteEvent(event.id)">Törlés</a></td>
       </tr>
     </table>
   </section>

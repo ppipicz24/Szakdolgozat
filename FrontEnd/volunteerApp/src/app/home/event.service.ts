@@ -19,12 +19,12 @@ export class EventService {
 
     fetchEvents() {
         const token = localStorage.getItem('token');
-        
+
             if (!token) {
               this.router.navigate(['/auth']); // Ha nincs token, átirányítás loginra
               return new Observable();
             }
-        
+
         const headers = new HttpHeaders({
               Authorization: `Bearer ${token}`
         });
@@ -50,12 +50,12 @@ export class EventService {
 
     addEvent(event: EventModel) {
         const token = localStorage.getItem('token');
-        
+
             if (!token) {
               this.router.navigate(['/auth']); // Ha nincs token, átirányítás loginra
               return new Observable();
             }
-        
+
         const headers = new HttpHeaders({
               Authorization: `Bearer ${token}`
         });
@@ -68,6 +68,30 @@ export class EventService {
             },
             error: err => {
                 console.error("Error adding event:", err)
+                this.errorService.showError(err.message);}
+        });
+    }
+
+    deleteEvent(id: string) {
+        const token = localStorage.getItem('token');
+
+            if (!token) {
+              this.router.navigate(['/auth']); // Ha nincs token, átirányítás loginra
+              return new Observable();
+            }
+
+        const headers = new HttpHeaders({
+              Authorization: `Bearer ${token}`
+        });
+
+        return this.http.delete(`${this.apiUrl}/${id}`, {headers}).subscribe({
+            next: () => {
+                console.log("Event deleted:", id);
+                const currentEvents = this.eventSubject.value;
+                this.eventSubject.next(currentEvents.filter(event => event.id !== id));
+            },
+            error: err => {
+                console.error("Error deleting event:", err)
                 this.errorService.showError(err.message);}
         });
     }

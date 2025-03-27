@@ -42,8 +42,6 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-
-
 const sendEmail = async (to, subject, text) => {
   try {
     const transporter = nodemailer.createTransport({
@@ -69,7 +67,7 @@ const sendEmail = async (to, subject, text) => {
 };
 
 // Check if user is coordinator
-const isCoordinator = async (req, res, next) => {
+const isAdmin = async (req, res, next) => {
   try {
     const userRef = db.ref(`users/${req.user.id}`);
     const snapshot = await userRef.once('value');
@@ -128,7 +126,7 @@ router.post("/register", async (req, res) => {
       password: hashedPassword,
       phoneNumber,
       email,
-      role: role || "user",
+      role: role || "animator",
       createdAt: admin.database.ServerValue.TIMESTAMP,
     });
 
@@ -364,24 +362,24 @@ router.post('/events', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    if(name.length < 5) {
-      return res.status(400).json({ message: 'Name must be at least 5 characters long' });
+    if(name.length < 5 && name.length > 50) {
+      return res.status(400).json({ message: 'Name must be at least 5 and maximum 50 characters long ' });
     }
 
     if (numberOfPeople < 1) {
       return res.status(400).json({ message: 'Number of people must be at least 1' });
     }
 
-    if (age < 0) {
-      return res.status(400).json({ message: 'Age must be at least 0' });
+    if (age < 1) {
+      return res.status(400).json({ message: 'Age must be at least 1' });
     }
 
     if(date < new Date().toISOString()) {
       return res.status(400).json({ message: 'Date must be in the future' });
     }
 
-    if (time < 0 || time > 24) {
-      return res.status(400).json({ message: 'Time must be between 0 and 24' });
+    if (time < 0) {
+      return res.status(400).json({ message: 'Time must be between 0' });
     }
 
     if (isFull == null) {
@@ -420,6 +418,42 @@ router.get('/events', authenticateToken, async (req, res) => {
     });
     
     res.status(200).json(events);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// get event by id
+router.get('/events/:id', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    const eventRef = dbEvents.child(eventId);
+    const snapshot = await eventRef.once('value');
+
+    if (!snapshot.exists()) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    const eventData = snapshot.val();
+    res.status(200).json(eventData);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// **Event törlése**
+router.delete('/events/:id', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    const eventRef = dbEvents.child(eventId);
+    const snapshot = await eventRef.once('value');
+
+    if (!snapshot.exists()) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    await eventRef.remove();
+    res.status(200).json({ message: 'Event deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
