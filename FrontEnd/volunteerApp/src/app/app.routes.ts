@@ -10,7 +10,7 @@ import { PasswordResetComponent } from './password-reset/password-reset.componen
 import { ForgetPasswordComponent } from './forget-password/forget-password.component';
 
 export const routes: Routes = [
-  {path: '', redirectTo: localStorage.getItem('token') === null?'/auth':'/home', pathMatch: 'full'},
+  {path: '', redirectTo: !localStorage.getItem('token') ? '/auth' : '/home', pathMatch: 'full'},
   {path: 'home', component: HomeComponent},
   {path: 'profile', component: ProfileComponent},
   {path: 'users', component: UsersComponent},
@@ -19,6 +19,4 @@ export const routes: Routes = [
   {path: 'edit', component: EditComponent},
   {path: 'password-reset', component: PasswordResetComponent},
   {path: 'forget-password', component: ForgetPasswordComponent}
-
-
 ];

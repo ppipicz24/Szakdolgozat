@@ -1,12 +1,20 @@
-import { inject, Injectable, signal } from "@angular/core";
-import { ErrorService } from "../shared/error.service";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { AuthData } from "./auth.model";
-import { BehaviorSubject, catchError, map, Observable, tap, throwError } from "rxjs";
-import { Router } from "@angular/router";
+import { inject, Injectable, signal } from '@angular/core';
+import { ErrorService } from '../shared/error.service';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { AuthData } from './auth.model';
+import {
+  BehaviorSubject,
+  catchError,
+  map,
+  Observable,
+  tap,
+  throwError,
+} from 'rxjs';
+import { Router } from '@angular/router';
+import { jwtDecode } from 'jwt-decode';
 
-@Injectable({providedIn: 'root'})
-export class AuthService{
+@Injectable({ providedIn: 'root' })
+export class AuthService {
   private errorService = inject(ErrorService);
   private httpClient = inject(HttpClient);
 
@@ -20,12 +28,44 @@ export class AuthService{
   token$ = this.tokenSubject.asObservable();
 
   private apiUrl = 'http://localhost:3000';
+  private tokenExpirationTimer: any;
 
-  constructor(private router: Router){
-    const storedUser = this.getUserFromStorage();
-    if (storedUser) {
-      this.userSubject.next(storedUser);
+  constructor(private router: Router) {
+    this.autoLogin();
+  }
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      const decoded: any = jwtDecode(token);
+      const now = Math.floor(Date.now() / 1000); // jelenlegi idő másodpercben
+      return decoded.exp < now;
+    } catch (e) {
+      return true; // ha hiba van, tekintsd érvénytelennek
     }
+  }
+
+  autoLogin() {
+    const token = localStorage.getItem('token');
+    const user = this.getUserFromStorage();
+
+    if (token && user && !this.isTokenExpired(token)) {
+      this.tokenSubject.next(token);
+      this.userSubject.next(user);
+    } else {
+      this.logout();
+      this.router.navigate(['/auth']);
+    }
+  }
+
+  autoLogout(expirationDuration: number) {
+    if (this.tokenExpirationTimer) {
+      clearTimeout(this.tokenExpirationTimer);
+    }
+
+    this.tokenExpirationTimer = setTimeout(() => {
+      this.logout();
+      this.router.navigate(['/auth']);
+    }, expirationDuration);
   }
 
   private getUserFromStorage() {
@@ -35,9 +75,9 @@ export class AuthService{
 
   fetchUser(url: string) {
     return this.httpClient.get<{ users: AuthData[] }>(url).pipe(
-      tap(resData => console.log("API response:", resData)),
-      catchError(error => {
-        console.error("Error fetching users:", error);
+      tap((resData) => console.log('API response:', resData)),
+      catchError((error) => {
+        console.error('Error fetching users:', error);
         this.errorService.showError(error.message);
         return throwError(() => new Error(error.message));
       })
@@ -47,57 +87,101 @@ export class AuthService{
   loadUser() {
     this.fetchUser(`${this.apiUrl}/users`).subscribe({
       next: (users: any) => {
-        console.log("Users loaded:", users);
+        console.log('Users loaded:', users);
         this.usersSubject.next(users); // Frissítjük a BehaviorSubject-et
       },
-      error: err => console.error("Error loading users:", err)
+      error: (err) => console.error('Error loading users:', err),
     });
   }
 
-  addUser(user: AuthData){
-    return this.httpClient.post<AuthData>(`${this.apiUrl}/register`, user).subscribe({
-      next: (user) => {
-        console.log("User added:", user);
-        const currentUsers = this.usersSubject.value; // **Megkapjuk a jelenlegi usereket**
-        this.usersSubject.next([...currentUsers, user]); // **Új felhasználó hozzáadása**
-      },
-      error: err => {
-        console.error("Error adding user:", err);
-        this.errorService.showError(err.message);
-      }
-    });
+  addUser(user: AuthData) {
+    return this.httpClient
+      .post<AuthData>(`${this.apiUrl}/register`, user)
+      .subscribe({
+        next: (user) => {
+          console.log('User added:', user);
+          const currentUsers = this.usersSubject.value; // **Megkapjuk a jelenlegi usereket**
+          this.usersSubject.next([...currentUsers, user]); // **Új felhasználó hozzáadása**
+        },
+        error: (err) => {
+          console.error('Error adding user:', err);
+          this.errorService.showError(err.message);
+        },
+      });
   }
 
-   // **Login metódus**
-   login(email: string, password: string) {
-    console.log("Bejelentkezési kérés:", { email, password });
+  // **Login metódus**
+  //  login(email: string, password: string) {
+  //   console.log("Bejelentkezési kérés:", { email, password });
 
-    return this.httpClient.post<{ token: string, user: any }>(
-      `${this.apiUrl}/login`,
-      { email, password },
-      { observe: 'response' }
-    ).pipe(
-      tap(response => {
-        console.log("Login response:", response);
+  //   return this.httpClient.post<{ token: string, user: any }>(
+  //     `${this.apiUrl}/login`,
+  //     { email, password },
+  //     { observe: 'response' }
+  //   ).pipe(
+  //     tap(response => {
+  //       console.log("Login response:", response);
 
-        const token = response.body?.token;
-        const user = response.body?.user;
+  //       const token = response.body?.token;
+  //       const user = response.body?.user;
 
-        if (!token || !user) {
-          throw new Error("Hibás szerver válasz! Token vagy user hiányzik.");
-        }
+  //       if (!token || !user) {
+  //         throw new Error("Hibás szerver válasz! Token vagy user hiányzik.");
+  //       }
 
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
+  //       localStorage.setItem('token', token);
+  //       localStorage.setItem('user', JSON.stringify(user));
 
-        this.tokenSubject.next(token);
-        this.userSubject.next(user); // **Frissítjük a BehaviorSubject-et is**
-      }),
-      catchError(error => {
-        console.error("Login sikertelen:", error);
-        return throwError(() => new Error("Hibás felhasználónév vagy jelszó!"));
-      })
-    );
+  //       this.tokenSubject.next(token);
+  //       this.userSubject.next(user); // **Frissítjük a BehaviorSubject-et is**
+  //     }),
+  //     catchError(error => {
+  //       console.error("Login sikertelen:", error);
+  //       return throwError(() => new Error("Hibás felhasználónév vagy jelszó!"));
+  //     })
+  //   );
+  // }
+
+  login(email: string, password: string) {
+    console.log('Bejelentkezési kérés:', { email, password });
+
+    return this.httpClient
+      .post<{ token: string; user: any }>(
+        `${this.apiUrl}/login`,
+        { email, password },
+        { observe: 'response' }
+      )
+      .pipe(
+        tap((response) => {
+          console.log('Login response:', response);
+
+          const token = response.body?.token;
+          const user = response.body?.user;
+
+          if (!token || !user) {
+            throw new Error('Hibás szerver válasz! Token vagy user hiányzik.');
+          }
+
+          // Mentés localStorage-ba
+          localStorage.setItem('token', token);
+          localStorage.setItem('user', JSON.stringify(user));
+
+          // Állapot frissítése
+          this.tokenSubject.next(token);
+          this.userSubject.next(user);
+
+          // ⏱️ Token lejárat figyelése
+          const decoded: any = jwtDecode(token);
+          const expiresInMs = decoded.exp * 1000 - Date.now(); // ms-ben
+          this.autoLogout(expiresInMs);
+        }),
+        catchError((error) => {
+          console.error('Login sikertelen:', error);
+          return throwError(
+            () => new Error('Hibás felhasználónév vagy jelszó!')
+          );
+        })
+      );
   }
 
   getUser() {
@@ -124,7 +208,7 @@ export class AuthService{
     }
 
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     });
 
     return this.httpClient.get(`${this.apiUrl}/profile`, { headers });
@@ -161,5 +245,4 @@ export class AuthService{
         })
       );
   }
-
 }
