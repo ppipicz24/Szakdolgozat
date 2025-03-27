@@ -2,19 +2,47 @@
   <a routerLink="/home" class="back"><img src="back_arrow.png" class="icon">Vissza a főoldalra</a>
 
   <h1>Új esemény hozzáadása</h1>
-  <form class="form">
+  <form class="form" #newDateForm="ngForm" (ngSubmit)="onSubmit(newDateForm)">
     <div class="text-input">
-      <input type="text" name="name" id="name" class="inp" placeholder="Esemény neve">
-        <input type="datetime" name="date" id="date" class="inp dInp" placeholder="Esemény ideje">
-      <input type="number" name="time" id="time" class="inp" placeholder="Időtartam">
-      <input type="number" name="numberOfPeople" id="numberOfPeople" class="inp" placeholder="Létszám">
-      <input type="number" name="age" id="age" class="inp" placeholder="Korosztály">
+      <input type="text" name="name" id="name" class="inp" placeholder="Esemény neve" ngModel required
+        minlength="4" maxlength="50" #name="ngModel"/>
+      <div class="error-message" *ngIf="(name.invalid && name.touched) || (formSubmitted && name.invalid)">
+        <span *ngIf="name.errors?.['required']">A mező kitöltése kötelező.</span>
+        <span *ngIf="name.errors?.['minlength'] || name.errors?.['maxlength']">A név 4 és 50 karakter között
+          lehet.</span>
+      </div>
+        <input type="datetime" name="date" id="date" class="inp dInp" placeholder="Esemény ideje" ngModel required
+          #date="ngModel"/>
+      <div class="error-message" *ngIf="(date.invalid && date.touched) || (formSubmitted && date.invalid)">
+        <span *ngIf="date.errors?.['required']">A mező kitöltése kötelező.</span>
+      </div>
+      <input type="number" name="time" id="time" class="inp" placeholder="Időtartam" ngModel required min="1"
+        #time="ngModel"/>
+      <div class="error-message" *ngIf="(time.invalid && time.touched) || (formSubmitted && time.invalid)">
+        <span *ngIf="time.errors?.['required']">A mező kitöltése kötelező.</span>
+        <span *ngIf="time.errors?.['min']">Az időtartam legalább 1 óra kell legyen.</span>
+
+    </div>
+      <input type="number" name="numberOfPeople" id="numberOfPeople" class="inp" placeholder="Létszám" ngModel required
+        min="1" #numberOfPeople="ngModel"/>
+      <div class="error-message" *ngIf="(numberOfPeople.invalid && numberOfPeople.touched) || (formSubmitted && numberOfPeople.invalid)">
+        <span *ngIf="numberOfPeople.errors?.['required']">A mező kitöltése kötelező.</span>
+        <span *ngIf="numberOfPeople.errors?.['min']">A létszám legalább 1 fő kell legyen.</span>
+    </div>
+      <input type="number" name="age" id="age" class="inp" placeholder="Korosztály" ngModel required min="1"
+        #age="ngModel"/>
+      <div class="error-message" *ngIf="(age.invalid && age.touched) || (formSubmitted && age.invalid)">
+        <span *ngIf="age.errors?.['required']">A mező kitöltése kötelező.</span>
+        <span *ngIf="age.errors?.['min']">A korosztály legalább 1 éves kell legyen.</span>
+      </div>
+
     </div>
     <div class="input-checkbox">
-      <input type="checkbox" name="isHungarian" id="isHungarian" class="cInp">
+      <input type="checkbox" name="isHungarian" id="isHungarian" class="cInp" ngModel #isHungarian="ngModel"/>
       <label for="isHungarian">Magyar</label>
     </div>
       <button type="submit" class="submit">Hozzáadás</button>
+      <p class="help-block" >{{error}}</p>
   </form>
 
 </div>

@@ -19,17 +19,5 @@ p{
   font-size: 14px;
 }
 
-.error-message{
-  color: darkred;
-  font-size: 14px;
-  font-weight: bolder;
-  letter-spacing: -0.25px;
-  margin: 0 10px;
-  padding-bottom: 10px;
-}
-
-.inp:invalid + .error-message {
-  margin-top: -10px;
-}
 
 

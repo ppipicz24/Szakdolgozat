@@ -3,10 +3,11 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EventModel } from './event.model';
 import { EventService } from '../home/event.service';
 import { FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-new-date',
-  imports: [RouterLink, FormsModule, ReactiveFormsModule],
+  imports: [RouterLink, FormsModule, ReactiveFormsModule, CommonModule],
   templateUrl: './new-date.component.html',
   styleUrl: './new-date.component.css'
 })
@@ -40,19 +41,19 @@ export class NewDateComponent implements OnInit {
     const age = form.value.age;
     const isHungarian = form.value.isHungarian;
 
-    this.eventService.addEvent({
-      name,
-      date,
-      time,
-      numberOfPeople,
-      age,
-      isHungarian,
+    const newEvent: EventModel = {
+      name: name,
+      date: date,
+      time: time,
+      numberOfPeople: numberOfPeople,
+      age: age,
+      isHungarian: isHungarian,
       isFull: false,
-    });
+    };
 
+    this.eventService.addEvent(newEvent)
+    form.reset();
+    this.formSubmitted = false;
     this.router.navigate(['/home']);
   }
-
-  
-
 }
