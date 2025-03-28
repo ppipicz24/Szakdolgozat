@@ -1,14 +1,15 @@
 <header class="header">
-  <a routerLink="/" class="main-nav">Kezdőlap</a>
+  <a routerLink="/" class="main-nav">VolunteerApp</a>
   <nav class="nav">
     <ul class="nav-list left">
       <ng-container *ngIf="isAuth">
+        <li routerLinkActive="active"><a class="nav-link" routerLink="/home">Események</a></li>
         <li routerLinkActive="active"><a class="nav-link" routerLink="/profile">Profil</a></li>
         <li routerLinkActive="active"><a class="nav-link" routerLink="/users">Felhasználók</a></li>
         <li routerLinkActive="active"><a class="nav-link" routerLink="/new-date">Új esemény</a></li>
       </ng-container>
     </ul>
-    
+
     <ul class="nav-list right">
       <ng-container *ngIf="isAuth">
         <li routerLinkActive="active">

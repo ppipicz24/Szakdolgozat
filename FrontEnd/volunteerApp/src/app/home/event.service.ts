@@ -123,25 +123,25 @@ export class EventService {
     }
 
     unregisterFromEvent(eventId: string): Observable<any> {
-      const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token');
 
-      if (!token) {
-        this.router.navigate(['/auth']);
-        return new Observable();
-      }
+  if (!token) {
+    this.router.navigate(['/auth']);
+    return new Observable();
+  }
 
-      const headers = new HttpHeaders({
-        Authorization: `Bearer ${token}`
-      });
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${token}`
+  });
 
-      return this.http.delete(`${this.apiUrl}/${eventId}/unregister`, { headers }).pipe(
-        tap(() => console.log("Lejelentkezés sikeres:", eventId)),
-        catchError(error => {
-          this.errorService.showError(error.message);
-          return throwError(() => new Error(error.message));
-        })
-      );
-    }
+  return this.http.delete(`${this.apiUrl}/${eventId}/unregister`, { headers }).pipe(
+    tap(() => console.log("Lejelentkezés sikeres:", eventId)),
+    catchError(error => {
+      this.errorService.showError(error.message);
+      return throwError(() => new Error(error.message));
+    })
+  );
+}
 
 
     getMyEventIds(): Observable<string[]> {

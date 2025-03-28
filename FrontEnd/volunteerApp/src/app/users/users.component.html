@@ -10,7 +10,6 @@
         <th>Email cím</th>
         <th>Telefonszám</th>
         <th>Admin</th>
-        <th></th>
       </tr>
       <tr *ngFor="let user of users">
         <td>{{user.name}}</td>
@@ -22,9 +21,6 @@
         @else{
           <td>{{"nem"}}</td>
         }
-        <td>
-          <a class="btn" routerLink="/edit">Módosítás</a>
-        </td>
       </tr>
       </table>
 

@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './header/header.component';
-import { CommonModule } from '@angular/common';
 import { ErrorModalComponent } from './shared/modal/error-modal/error-modal.component';
 import { ErrorService } from './shared/error.service';
 

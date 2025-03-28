@@ -512,6 +512,34 @@ router.post('/events/:id/register', authenticateToken, async (req, res) => {
   }
 });
 
+// router.delete('/events/:id/unregister', authenticateToken, async (req, res) => {
+//   try {
+//     const eventId = req.params.id;
+//     const userId = req.user.id;
+
+//     const userEventKey = `${userId}_${eventId}`;
+
+//     // Végigmegyünk az összes userEvent-en, hogy megtaláljuk a megfelelőt
+//     const snapshot = await dbUserEvents.orderByChild('user_event').equalTo(userEventKey).once('value');
+
+//     if (!snapshot.exists()) {
+//       return res.status(404).json({ message: 'User is not registered for this event' });
+//     }
+
+//     const updates = [];
+//     snapshot.forEach(childSnapshot => {
+//       updates.push(childSnapshot.ref.remove());
+//     });
+
+//     await Promise.all(updates);
+
+//     res.status(200).json({ message: 'Successfully unregistered from event' });
+//   } catch (error) {
+//     console.error("❌ Hiba lejelentkezésnél:", error);
+//     res.status(500).json({ message: 'Server error', error: error.message });
+//   }
+// });
+
 router.delete('/events/:id/unregister', authenticateToken, async (req, res) => {
   try {
     const eventId = req.params.id;
@@ -519,7 +547,6 @@ router.delete('/events/:id/unregister', authenticateToken, async (req, res) => {
 
     const userEventKey = `${userId}_${eventId}`;
 
-    // Végigmegyünk az összes userEvent-en, hogy megtaláljuk a megfelelőt
     const snapshot = await dbUserEvents.orderByChild('user_event').equalTo(userEventKey).once('value');
 
     if (!snapshot.exists()) {
@@ -532,6 +559,21 @@ router.delete('/events/:id/unregister', authenticateToken, async (req, res) => {
     });
 
     await Promise.all(updates);
+
+    // 🔄 Email küldés a felhasználónak lejelentkezésről
+    const userSnap = await dbUser.child(userId).once('value');
+    const userData = userSnap.val();
+
+    const eventSnap = await dbEvents.child(eventId).once('value');
+    const eventData = eventSnap.val();
+
+    if (userData?.email && eventData?.name) {
+      await sendEmail(
+        userData.email,
+        'Lejelentkezés eseményről',
+        `Sikeresen lejelentkeztél a(z) "${eventData.name}" eseményről (${eventData.date} - ${eventData.time}).`
+      );
+    }
 
     res.status(200).json({ message: 'Successfully unregistered from event' });
   } catch (error) {

@@ -1,11 +1,10 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { ErrorService } from '../shared/error.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthData } from './auth.model';
 import {
   BehaviorSubject,
   catchError,
-  map,
   Observable,
   tap,
   throwError,
