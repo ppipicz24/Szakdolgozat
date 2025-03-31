@@ -85,6 +85,7 @@ h1{
   border-spacing: 0;
   border-collapse: collapse;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
 }
 
 th, td{
@@ -128,7 +129,7 @@ tr:nth-child(even){
   display: flex;
   align-items: center;
   gap: 5px;
-  
+
   color: #000F7D;
   text-decoration: none;
   text-transform: uppercase;
@@ -142,4 +143,18 @@ tr:nth-child(even){
   width: 20px;
   height: 15px;
   color: #000F7D;
+}
+
+
+.error-message{
+  color: darkred;
+  font-size: 14px;
+  font-weight: bolder;
+  letter-spacing: -0.25px;
+  margin: 0 10px;
+  padding-bottom: 10px;
+}
+
+.inp:invalid + .error-message {
+  margin-top: -10px;
 }

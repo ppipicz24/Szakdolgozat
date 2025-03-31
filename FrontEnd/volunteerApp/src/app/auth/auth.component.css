@@ -10,6 +10,14 @@ p{
   padding: 5px;
   cursor: pointer;
   letter-spacing: -0.25px;
+  text-align: center;
+  margin: 0 15px;
 }
+
+.help-block{
+  color: darkred;
+  font-size: 14px;
+}
+
 
 

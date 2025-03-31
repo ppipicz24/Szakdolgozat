@@ -1,18 +1,25 @@
 <div class="form-container">
-  <a routerLink="/home" class="back"><img src="back_arrow.png" class="icon">Vissza a főoldalra</a>
-    <h1>Adatok módosítása</h1>
-    <form class="form">
-        <div class="text-input">
-            <h4></h4>
-            <input type="text" name="username" id="username" placeholder="Felhasználónév" class="inp" email />
-            <input type="text" name="name" id="name" placeholder="Név" class="inp" />
-            <input type="tel" name="phone" id="phone" placeholder="Telefonszám" class="inp" />
-            <input type="email" name="email" id="email" placeholder="Email cím" class="inp" email />
-        </div>
-        <button class="submit">Jelszó módosítása</button>
-        <div class="buttons">
-            <button type="submit" class="submit" >Mentés</button>
-            <a class="submit" routerLink="/profile">Mégsem</a>
-        </div>
-    </form>
+  <a routerLink="/profile" class="back">
+    <img src="back_arrow.png" class="icon">Vissza a profil oldalra
+  </a>
+  <h1>Adatok módosítása</h1>
+
+  <form class="form" (ngSubmit)="onSubmit()">
+    <div class="text-input">
+      <input type="text" [(ngModel)]="user.username" name="username" id="username" placeholder="Felhasználónév" class="inp" disabled />
+      <input type="text" [(ngModel)]="user.name" name="name" id="name" placeholder="Név" class="inp" />
+      <input type="tel" [(ngModel)]="user.phoneNumber" name="phone" id="phone" placeholder="Telefonszám" class="inp" />
+      <input type="email" [(ngModel)]="user.email" name="email" id="email" placeholder="Email cím" class="inp" />
+    </div>
+
+    <!-- **Hibaüzenetek megjelenítése** -->
+    <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+
+    <!-- **Sikeres módosítás visszajelzése** -->
+    <p *ngIf="successMessage" class="success-message">{{ successMessage }}</p>
+
+    <button type="submit" class="submit">Mentés</button>
+    <a class="submit" routerLink="/profile">Mégsem</a>
+  </form>
 </div>
+
