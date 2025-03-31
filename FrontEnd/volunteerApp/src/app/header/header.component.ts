@@ -14,20 +14,30 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isAuth = false;
   private authSubscription!: Subscription;
   private userSubscription!: Subscription;
+  isAdmin = false; // **Admin jogosultság változó**
+  isCoordinator = false; // **Koordinátor jogosultság változó**
+  name: any | null = null;
+
 
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit() {
-    // **Figyeljük a token állapotát**
     this.authSubscription = this.authService.token$.subscribe(token => {
       this.isAuth = !!token;
     });
 
-    // **Figyeljük a felhasználói adatokat, hogy frissüljenek a fejlécben**
     this.userSubscription = this.authService.user$.subscribe(user => {
       if (user) {
         console.log("User updated in header:", user);
-        this.isAuth = true; // **Ha van felhasználó, akkor be van jelentkezve**
+        this.isAuth = true;
+        this.name = user.name || null;
+        this.isAdmin = user.role === 'admin';
+        this.isCoordinator = user.role === 'coordinator';
+      } else {
+        this.isAuth = false;
+        this.name = null;
+        this.isAdmin = false;
+        this.isCoordinator = false;
       }
     });
   }

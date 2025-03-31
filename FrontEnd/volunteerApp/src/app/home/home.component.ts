@@ -3,12 +3,13 @@ import { AuthService } from '../auth/auth.service';
 import { EventModel } from '../new-date/event.model';
 import { EventService } from './event.service';
 import { CommonModule } from '@angular/common';
+import { ErrorService } from '../shared/error.service';
 
 @Component({
   selector: 'app-home',
   imports: [CommonModule],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.css'
+  styleUrl: './home.component.css',
 })
 export class HomeComponent implements OnInit {
   isApplied: boolean = false;
@@ -16,36 +17,45 @@ export class HomeComponent implements OnInit {
 
   isAdmin: boolean = false;
 
-  events: EventModel[] = []
+  events: EventModel[] = [];
   registeredEventIds: Set<string> = new Set();
 
+  registeredEvents: EventModel[] = [];
 
-  constructor(private authService: AuthService, private eventService: EventService) {}
+  currentPage: number = 1;
+  itemsPerPage: number = 5;
 
-  // ngOnInit() {
+  get paginatedEvents(): EventModel[] {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    return this.events.slice(start, end);
+  }
 
-  //   this.authService.getUser().subscribe(user => {
-  //     console.log("Lekérdezett user:", user); // Debug log
+  get totalPages(): number {
+    return Math.ceil(this.events.length / this.itemsPerPage);
+  }
 
-  //     if (user && typeof user === 'object' && user.name) {
-  //       this.name = user.name; // **Csak akkor állítsuk be, ha létezik**
-  //       if (user.role === 'admin') {
-  //         this.isAdmin = true; // **Ha admin, akkor beállítjuk az admin változót**
-  //       }
-  //     } else {
-  //       this.name = null; // **Ha kijelentkezik, töröljük a nevet**
-  //     }
-  //   });
+  registeredCurrentPage: number = 1;
+registeredItemsPerPage: number = 5;
 
-  //   this.eventService.loadEvents();
-  //   this.eventService.events$.subscribe(events => {
-  //     this.events = events; // Amint az adat megérkezik, frissül az `events` tömb
-  //     console.log("Events updated:", this.events);
-  //   });
-  // }
+get paginatedRegisteredEvents(): EventModel[] {
+  const start = (this.registeredCurrentPage - 1) * this.registeredItemsPerPage;
+  const end = start + this.registeredItemsPerPage;
+  return this.registeredEvents.slice(start, end);
+}
+
+get registeredTotalPages(): number {
+  return Math.ceil(this.registeredEvents.length / this.registeredItemsPerPage);
+}
+
+  constructor(
+    private authService: AuthService,
+    private eventService: EventService,
+    private errorService: ErrorService
+  ) {}
 
   ngOnInit() {
-    this.authService.getUser().subscribe(user => {
+    this.authService.getUser().subscribe((user) => {
       if (user && typeof user === 'object' && user.name) {
         this.name = user.name;
         if (user.role === 'admin') this.isAdmin = true;
@@ -56,21 +66,23 @@ export class HomeComponent implements OnInit {
 
     this.eventService.loadEvents();
 
-    this.eventService.events$.subscribe(events => {
-      this.events = events;
+    this.eventService.events$.subscribe((events) => {
+      this.events = events.sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
     });
-
     this.eventService.getMyEventIds().subscribe({
       next: (eventIds: string[]) => {
         this.registeredEventIds = new Set(eventIds);
+        this.registeredEvents = this.events.filter((event) =>
+          this.registeredEventIds.has(event.id)
+        );
       },
-      error: err => {
-        console.error("Nem sikerült betölteni a saját jelentkezéseket:", err);
-      }
+      error: (err) => {
+        console.error('Nem sikerült betölteni a saját jelentkezéseket:', err);
+      },
     });
   }
-
-
 
   // onClickApply(eventId: string) {
   //   this.eventService.registerToEvent(eventId).subscribe({
@@ -90,30 +102,56 @@ export class HomeComponent implements OnInit {
       // Lejelentkezés
       this.eventService.unregisterFromEvent(eventId).subscribe({
         next: () => {
+          // Frissítjük a Set-et
           const newSet = new Set(this.registeredEventIds);
           newSet.delete(eventId);
           this.registeredEventIds = newSet;
+
+          // Eltávolítjuk az eseményt a registeredEvents tömbből is
+          this.registeredEvents = this.registeredEvents.filter(
+            (event) => event.id !== eventId
+          );
         },
-        error: err => console.error("Lejelentkezés hiba:", err)
+        error: (err) => console.error('Lejelentkezés hiba:', err),
       });
     } else {
       // Jelentkezés
       this.eventService.registerToEvent(eventId).subscribe({
         next: () => {
-          this.registeredEventIds = new Set([...this.registeredEventIds, eventId]);
+          this.registeredEventIds = new Set([
+            ...this.registeredEventIds,
+            eventId,
+          ]);
+
+          const eventToAdd = this.events.find((event) => event.id === eventId);
+          if (eventToAdd) {
+            this.registeredEvents = [...this.registeredEvents, eventToAdd];
+          }
         },
-        error: err => console.error("Jelentkezés hiba:", err)
+        error: (err) => console.error('Jelentkezés hiba:', err),
       });
     }
   }
 
+  deleteEvent(eventId: string) {
+    this.eventService.deleteEvent(eventId).subscribe({
+      next: () => {
+        console.log('Event deleted:', eventId);
 
+        this.events = this.events.filter((event) => event.id !== eventId);
 
-  deleteEvent(index: string) {
-    this.eventService.deleteEvent(index)
-    this.eventService.loadEvents();
+        const newSet = new Set(this.registeredEventIds);
+        newSet.delete(eventId);
+        this.registeredEventIds = newSet;
 
+        this.registeredEvents = this.registeredEvents.filter(
+          (event) => event.id !== eventId
+        );
+      },
+      error: (err) => {
+        console.error('Esemény törlése sikertelen:', err);
+        this.errorService.showError(err.message);
+      },
+    });
   }
-
-
 }

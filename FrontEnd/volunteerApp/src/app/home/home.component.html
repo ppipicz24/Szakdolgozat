@@ -1,10 +1,6 @@
 <div class="container">
-  Hello {{ name }}!
   <h1 class="title">Események</h1>
   <section class="filter-table">
-    <aside>
-      <button class="filter">Szűrés</button>
-    </aside>
     <table class="table">
       <tr class="table-header">
         <th>Esemény neve</th>
@@ -16,7 +12,7 @@
         <th></th>
         <th *ngIf="isAdmin"></th>
       </tr>
-      <tr *ngFor="let event of events">
+      <tr *ngFor="let event of paginatedEvents">
         <td>{{event.name}}</td>
         <td>{{event.date}}</td>
         <td>{{event.time}} óra</td>
@@ -33,4 +29,45 @@
       </tr>
     </table>
   </section>
+  <div class="pagination">
+    <button (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1">Előző</button>
+
+    <span>Oldal {{ currentPage }} / {{ totalPages }}</span>
+
+    <button (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPages">Következő</button>
+  </div>
+</div>
+
+<div class="container">
+  <h1 class="title">Jelentkezett események</h1>
+  <section class="filter-table">
+    <aside>
+      <button class="filter">Exportálás Google Calendarba</button>
+    </aside>
+    <table class="table">
+      <tr class="table-header">
+        <th>Esemény neve</th>
+        <th>Dátum kezdete</th>
+        <th>Időtartam</th>
+        <th>Nyelv</th>
+        <th>Kor</th>
+        <th>Létszám</th>
+        <th></th>
+      </tr>
+      <tr *ngFor="let event of paginatedRegisteredEvents">
+        <td>{{event.name}}</td>
+        <td>{{event.date}}</td>
+        <td>{{event.time}} óra</td>
+        <td>{{event.isHungarian ? "Magyar" : "Angol"}}</td>
+        <td>{{event.age}}</td>
+        <td>{{event.numberOfPeople}}</td>
+        <td><a class="delete" (click)="onClickApply(event.id)">Lejelentkezés</a></td>
+      </tr>
+    </table>
+  </section>
+  <div class="pagination">
+    <button (click)="registeredCurrentPage = registeredCurrentPage - 1" [disabled]="registeredCurrentPage === 1">Előző</button>
+    <span>Oldal {{ registeredCurrentPage }} / {{ registeredTotalPages }}</span>
+    <button (click)="registeredCurrentPage = registeredCurrentPage + 1" [disabled]="registeredCurrentPage === registeredTotalPages">Következő</button>
+  </div>
 </div>

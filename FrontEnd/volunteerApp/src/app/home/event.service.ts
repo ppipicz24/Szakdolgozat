@@ -74,29 +74,22 @@ export class EventService {
         });
     }
 
-    deleteEvent(id: string) {
-        const token = localStorage.getItem('token');
+    deleteEvent(id: string): Observable<any> {
+      const token = localStorage.getItem('token');
 
-            if (!token) {
-              this.router.navigate(['/auth']); // Ha nincs token, átirányítás loginra
-              return new Observable();
-            }
+      if (!token) {
+        this.router.navigate(['/auth']);
+        return new Observable();
+      }
 
-        const headers = new HttpHeaders({
-              Authorization: `Bearer ${token}`
-        });
+      const headers = new HttpHeaders({
+        Authorization: `Bearer ${token}`
+      });
 
-        return this.http.delete(`${this.apiUrl}/${id}`, {headers}).subscribe({
-            next: () => {
-                console.log("Event deleted:", id);
-                const currentEvents = this.eventSubject.value;
-                this.eventSubject.next(currentEvents.filter(event => event.id !== id));
-            },
-            error: err => {
-                console.error("Error deleting event:", err)
-                this.errorService.showError(err.message);}
-        });
+      // 🔁 Itt már NEM írjuk meg a subscribe-ot!
+      return this.http.delete(`${this.apiUrl}/${id}`, { headers });
     }
+
 
     registerToEvent(eventId: string) {
       const token = localStorage.getItem('token');

@@ -443,9 +443,27 @@ router.get('/events/:id', authenticateToken, isAdmin, async (req, res) => {
 });
 
 // **Event törlése**
+// router.delete('/events/:id', authenticateToken, isAdmin, async (req, res) => {
+//   try {
+//     const eventId = req.params.id;
+//     const eventRef = dbEvents.child(eventId);
+//     const snapshot = await eventRef.once('value');
+
+//     if (!snapshot.exists()) {
+//       return res.status(404).json({ message: 'Event not found' });
+//     }
+
+//     await eventRef.remove();
+//     res.status(200).json({ message: 'Event deleted successfully' });
+//   } catch (error) {
+//     res.status(500).json({ message: 'Server error', error: error.message });
+//   }
+// });
+
 router.delete('/events/:id', authenticateToken, isAdmin, async (req, res) => {
   try {
     const eventId = req.params.id;
+
     const eventRef = dbEvents.child(eventId);
     const snapshot = await eventRef.once('value');
 
@@ -453,12 +471,30 @@ router.delete('/events/:id', authenticateToken, isAdmin, async (req, res) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
+    // 🔥 Esemény törlése
     await eventRef.remove();
-    res.status(200).json({ message: 'Event deleted successfully' });
+
+    // 🧹 Kapcsoló tábla takarítása: minden userEvents, ami ehhez az eventId-hoz tartozik
+    const userEventsSnapshot = await dbUserEvents.once('value');
+
+    const deletePromises = [];
+
+    userEventsSnapshot.forEach(childSnapshot => {
+      const entry = childSnapshot.val();
+      if (entry.eventId === eventId) {
+        deletePromises.push(childSnapshot.ref.remove());
+      }
+    });
+
+    await Promise.all(deletePromises);
+
+    res.status(200).json({ message: 'Event and related registrations deleted successfully' });
   } catch (error) {
+    console.error('❌ Error deleting event and related registrations:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
 
 //register to event
 router.post('/events/:id/register', authenticateToken, async (req, res) => {
@@ -512,34 +548,6 @@ router.post('/events/:id/register', authenticateToken, async (req, res) => {
   }
 });
 
-// router.delete('/events/:id/unregister', authenticateToken, async (req, res) => {
-//   try {
-//     const eventId = req.params.id;
-//     const userId = req.user.id;
-
-//     const userEventKey = `${userId}_${eventId}`;
-
-//     // Végigmegyünk az összes userEvent-en, hogy megtaláljuk a megfelelőt
-//     const snapshot = await dbUserEvents.orderByChild('user_event').equalTo(userEventKey).once('value');
-
-//     if (!snapshot.exists()) {
-//       return res.status(404).json({ message: 'User is not registered for this event' });
-//     }
-
-//     const updates = [];
-//     snapshot.forEach(childSnapshot => {
-//       updates.push(childSnapshot.ref.remove());
-//     });
-
-//     await Promise.all(updates);
-
-//     res.status(200).json({ message: 'Successfully unregistered from event' });
-//   } catch (error) {
-//     console.error("❌ Hiba lejelentkezésnél:", error);
-//     res.status(500).json({ message: 'Server error', error: error.message });
-//   }
-// });
-
 router.delete('/events/:id/unregister', authenticateToken, async (req, res) => {
   try {
     const eventId = req.params.id;
@@ -577,7 +585,6 @@ router.delete('/events/:id/unregister', authenticateToken, async (req, res) => {
 
     res.status(200).json({ message: 'Successfully unregistered from event' });
   } catch (error) {
-    console.error("❌ Hiba lejelentkezésnél:", error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -586,34 +593,26 @@ router.delete('/events/:id/unregister', authenticateToken, async (req, res) => {
 router.get('/my-events', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
-    console.log("🔎 Felhasználó ID a tokenből:", userId);
 
     const snapshot = await dbUserEvents.once('value');
     const registeredEventIds = [];
 
     if (!snapshot.exists()) {
-      console.log("❗️Nincs semmilyen adat a userEvents-ben.");
       return res.status(200).json([]);
     }
 
     snapshot.forEach(childSnapshot => {
       const userEvent = childSnapshot.val();
-      console.log("👉 Vizsgált userEvent:", userEvent);
 
       if (userEvent && userEvent.userId === userId) {
         registeredEventIds.push(userEvent.eventId);
       }
     });
 
-    console.log("✅ Talált event ID-k:", registeredEventIds);
     res.status(200).json(registeredEventIds);
   } catch (error) {
-    console.error("❌ Hiba a my-events végpontban:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
-
-
-
 
 module.exports = router;
