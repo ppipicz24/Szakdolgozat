@@ -10,6 +10,7 @@
         <th>Kor</th>
         <th>Létszám</th>
         <th></th>
+        <th></th>
         <th *ngIf="isAdmin"></th>
       </tr>
       <tr *ngFor="let event of paginatedEvents">
@@ -25,16 +26,17 @@
           </a>
         </td>
 
-        <td *ngIf="isAdmin"><a class="delete" (click)="deleteEvent(event.id)">Törlés</a></td>
+        <td *ngIf="isAdmin"><img src="delete.png" class="delete" (click)="deleteEvent(event.id)"></td>
+        <td *ngIf="isAdmin"><img src="info.png" class="details" (click)="eventDetails(event.id)"></td>
       </tr>
     </table>
   </section>
   <div class="pagination">
-    <button (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1">Előző</button>
+    <button class="paginationButton" (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1">Előző</button>
 
     <span>Oldal {{ currentPage }} / {{ totalPages }}</span>
 
-    <button (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPages">Következő</button>
+    <button class="paginationButton" (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPages">Következő</button>
   </div>
 </div>
 
@@ -61,13 +63,13 @@
         <td>{{event.isHungarian ? "Magyar" : "Angol"}}</td>
         <td>{{event.age}}</td>
         <td>{{event.numberOfPeople}}</td>
-        <td><a class="delete" (click)="onClickApply(event.id)">Lejelentkezés</a></td>
+        <td><a class="btn" (click)="onClickApply(event.id)">Lejelentkezés</a></td>
       </tr>
     </table>
   </section>
   <div class="pagination">
-    <button (click)="registeredCurrentPage = registeredCurrentPage - 1" [disabled]="registeredCurrentPage === 1">Előző</button>
+    <button class="paginationButton" (click)="registeredCurrentPage = registeredCurrentPage - 1" [disabled]="registeredCurrentPage === 1">Előző</button>
     <span>Oldal {{ registeredCurrentPage }} / {{ registeredTotalPages }}</span>
-    <button (click)="registeredCurrentPage = registeredCurrentPage + 1" [disabled]="registeredCurrentPage === registeredTotalPages">Következő</button>
+    <button class="paginationButton" (click)="registeredCurrentPage = registeredCurrentPage + 1" [disabled]="registeredCurrentPage === registeredTotalPages">Következő</button>
   </div>
 </div>

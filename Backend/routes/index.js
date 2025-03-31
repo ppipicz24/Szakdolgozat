@@ -615,4 +615,25 @@ router.get('/my-events', authenticateToken, async (req, res) => {
   }
 });
 
+router.get('/events/:id/registered-users', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const eventId = req.params.id;
+
+    const snapshot = await dbUserEvents.once('value');
+    const registeredUsers = [];
+
+    snapshot.forEach(childSnapshot => {
+      const userEvent = childSnapshot.val();
+
+      if (userEvent && userEvent.eventId === eventId) {
+        registeredUsers.push(userEvent.userId);
+      }
+    });
+
+    res.status(200).json(registeredUsers);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
 module.exports = router;

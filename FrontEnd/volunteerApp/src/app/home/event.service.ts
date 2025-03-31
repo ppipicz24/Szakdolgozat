@@ -158,5 +158,25 @@ export class EventService {
       );
     }
 
+    //get users who registered to the event 
+    getRegisteredUsers(eventId: string): Observable<any> {
+      const token = localStorage.getItem('token');
 
+      if (!token) {
+        this.router.navigate(['/auth']);
+        return new Observable();
+      }
+
+      const headers = new HttpHeaders({
+        Authorization: `Bearer ${token}`
+      });
+
+      return this.http.get<any>(`${this.apiUrl}/${eventId}/registered-users`, { headers }).pipe(
+        tap(users => console.log("✔️ Regisztrált felhasználók:", users)),
+        catchError(error => {
+          this.errorService.showError(error.message);
+          return throwError(() => new Error(error.message));
+        })
+      );
+    }
 }

@@ -8,15 +8,18 @@ import { NewDateComponent } from './new-date/new-date.component';
 import { EditComponent } from './edit/edit.component';
 import { PasswordResetComponent } from './password-reset/password-reset.component';
 import { ForgetPasswordComponent } from './forget-password/forget-password.component';
+import { EventDetailsComponent } from './event-details/event-details.component';
 
 export const routes: Routes = [
   {path: '', redirectTo: !localStorage.getItem('token') ? '/auth' : '/home', pathMatch: 'full'},
   {path: 'home', component: HomeComponent},
+
   {path: 'profile', component: ProfileComponent},
   {path: 'users', component: UsersComponent},
   {path: 'auth', component: AuthComponent},
   {path: 'new-date', component: NewDateComponent},
   {path: 'edit', component: EditComponent},
   {path: 'password-reset', component: PasswordResetComponent},
-  {path: 'forget-password', component: ForgetPasswordComponent}
+  {path: 'forget-password', component: ForgetPasswordComponent},
+  {path: 'event-details', component: EventDetailsComponent},
 ];

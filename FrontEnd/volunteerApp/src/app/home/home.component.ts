@@ -4,6 +4,7 @@ import { EventModel } from '../new-date/event.model';
 import { EventService } from './event.service';
 import { CommonModule } from '@angular/common';
 import { ErrorService } from '../shared/error.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -51,7 +52,8 @@ get registeredTotalPages(): number {
   constructor(
     private authService: AuthService,
     private eventService: EventService,
-    private errorService: ErrorService
+    private errorService: ErrorService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -83,7 +85,7 @@ get registeredTotalPages(): number {
       },
     });
   }
-  
+
   onClickApply(eventId: string) {
     if (this.registeredEventIds.has(eventId)) {
       // Lejelentkezés
@@ -137,6 +139,24 @@ get registeredTotalPages(): number {
       },
       error: (err) => {
         console.error('Esemény törlése sikertelen:', err);
+        this.errorService.showError(err.message);
+      },
+    });
+  }
+
+  eventDetails(eventId: string) {
+
+    this.router.navigate(['/event-details'], {
+      queryParams: { eventId: eventId },
+    });
+    
+    this.eventService.getRegisteredUsers(eventId).subscribe({
+      next: (event) => {
+
+        console.log('Esemény részletei:', event);
+      },
+      error: (err) => {
+        console.error('Esemény részleteinek betöltése sikertelen:', err);
         this.errorService.showError(err.message);
       },
     });
