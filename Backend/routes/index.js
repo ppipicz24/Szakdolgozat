@@ -442,23 +442,6 @@ router.get('/events/:id', authenticateToken, isAdmin, async (req, res) => {
   }
 });
 
-// **Event törlése**
-// router.delete('/events/:id', authenticateToken, isAdmin, async (req, res) => {
-//   try {
-//     const eventId = req.params.id;
-//     const eventRef = dbEvents.child(eventId);
-//     const snapshot = await eventRef.once('value');
-
-//     if (!snapshot.exists()) {
-//       return res.status(404).json({ message: 'Event not found' });
-//     }
-
-//     await eventRef.remove();
-//     res.status(200).json({ message: 'Event deleted successfully' });
-//   } catch (error) {
-//     res.status(500).json({ message: 'Server error', error: error.message });
-//   }
-// });
 
 router.delete('/events/:id', authenticateToken, isAdmin, async (req, res) => {
   try {
@@ -615,25 +598,60 @@ router.get('/my-events', authenticateToken, async (req, res) => {
   }
 });
 
+
 router.get('/events/:id/registered-users', authenticateToken, isAdmin, async (req, res) => {
   try {
     const eventId = req.params.id;
-
     const snapshot = await dbUserEvents.once('value');
+
     const registeredUsers = [];
+
+    if (!snapshot.exists()) {
+      return res.status(200).json([]); // nincs regisztráció
+    }
+
+    const userFetches = [];
 
     snapshot.forEach(childSnapshot => {
       const userEvent = childSnapshot.val();
 
       if (userEvent && userEvent.eventId === eventId) {
-        registeredUsers.push(userEvent.userId);
+        const userId = userEvent.userId;
+
+        const fetch = dbUser.child(userId).once('value').then(userSnap => {
+          const userData = userSnap.val();
+
+          if (userData) {
+            registeredUsers.push({
+              id: userId,
+              name: userData.name || 'Név nincs',
+              email: userData.email || 'Email nincs',
+              phoneNumber: userData.phoneNumber || 'Telefonszám nincs'
+            });
+          } else {
+            // fallback ha a user már törölve lett
+            registeredUsers.push({
+              id: userId,
+              name: 'Ismeretlen felhasználó',
+              email: '-',
+              phoneNumber: '-'
+            });
+          }
+        });
+
+        userFetches.push(fetch);
       }
     });
 
+    await Promise.all(userFetches);
+
     res.status(200).json(registeredUsers);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error('❌ Hiba a regisztrált felhasználók lekérésekor:', error);
+    res.status(500).json({ message: "Szerverhiba", error: error.message });
   }
 });
+
+
 
 module.exports = router;

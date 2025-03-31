@@ -1,1 +1,24 @@
+<div class="container">
+  <h1 class="title">Jelentkezett felhasználók</h1>
+  <section class="filter-table">
+    <a routerLink="/home" class="back"><img src="back_arrow.png" class="icon">Vissza a főoldalra</a>
+
+    <table class="table">
+      <tr class="table-header">
+        <th>Név</th>
+        <th>Email</th>
+        <th>Telefonszám</th>
+      </tr>
+
+      <tr *ngFor="let user of registeredUsers">
+        <td>{{user.name}}</td>
+        <td>{{user.email}}</td>
+        <td>{{user.phoneNumber}}</td>
+      </tr>
+
+
+    </table>
+
+  </section>
+</div>
 <p>event-details works!</p>
