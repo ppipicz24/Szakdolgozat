@@ -1,9 +1,6 @@
 <div class="container">
   <h1 class="title">Felhasználók</h1>
   <section class="filter-table">
-    <aside>
-      <button class="filter">Szűrés</button>
-    </aside>
     <table class="table">
       <tr class="table-header">
         <th>Felhasználó neve</th>
@@ -11,7 +8,7 @@
         <th>Telefonszám</th>
         <th>Admin</th>
       </tr>
-      <tr *ngFor="let user of users">
+      <tr *ngFor="let user of paginatedUsers">
         <td>{{user.name}}</td>
         <td>{{user.email}}</td>
         <td>{{user.phoneNumber}}</td>
@@ -23,7 +20,12 @@
         }
       </tr>
       </table>
-
   </section>
+  <div class="pagination">
+    <button (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1">Előző</button>
 
+    <span>Oldal {{ currentPage }} / {{ totalPages }}</span>
+
+    <button (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPages">Következő</button>
+  </div>
 </div>

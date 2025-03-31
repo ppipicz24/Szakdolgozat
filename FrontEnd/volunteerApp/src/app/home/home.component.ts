@@ -83,20 +83,7 @@ get registeredTotalPages(): number {
       },
     });
   }
-
-  // onClickApply(eventId: string) {
-  //   this.eventService.registerToEvent(eventId).subscribe({
-  //     next: () => {
-  //       this.isApplied = true; // vagy akár eseményenként is kezelheted, ha több gombod van
-  //       console.log("User successfully registered.");
-  //     },
-  //     error: err => {
-  //       this.isApplied = false;
-  //       console.error("Registration failed:", err);
-  //     }
-  //   });
-  // }
-
+  
   onClickApply(eventId: string) {
     if (this.registeredEventIds.has(eventId)) {
       // Lejelentkezés

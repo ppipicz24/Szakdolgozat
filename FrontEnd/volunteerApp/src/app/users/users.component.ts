@@ -13,6 +13,19 @@ import { CommonModule } from '@angular/common';
 export class UsersComponent implements OnInit {
   users: AuthData[] = [];
 
+  currentPage: number = 1;
+  itemsPerPage: number = 5;
+
+  get paginatedUsers(): AuthData[] {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    return this.users.slice(start, end);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.users.length / this.itemsPerPage);
+  }
+
   constructor(private authService: AuthService) {}
 
   ngOnInit() {

@@ -27,3 +27,8 @@ button{
   cursor: pointer;
   margin: 0 10px;
 }
+
+button:disabled{
+  background-color: #8e94c5;
+  cursor: not-allowed;
+}

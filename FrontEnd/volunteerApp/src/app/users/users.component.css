@@ -1,3 +1,25 @@
-.btn{
-    text-decoration: none;
-}
+.pagination{
+    display: flex;
+    justify-content: center;
+    /* margin-top: 10px; */
+    margin-bottom: 50px;
+    font-size: 14px;
+    font-weight: bolder;
+    letter-spacing: -0.25px;
+    align-items: center;
+  }
+  
+  button{
+    background-color: #283692;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin: 0 10px;
+  }
+
+  button:disabled{
+    background-color: #8e94c5;
+    cursor: not-allowed;
+  }
