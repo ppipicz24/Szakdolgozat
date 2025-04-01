@@ -115,16 +115,6 @@ tr:nth-child(even){
   cursor: pointer;
 }
 
-.filter{
-  background-color: #283692;
-  color: white;
-  font-size: 18px;
-  font-weight: 500;
-  padding: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
 .back{
   display: flex;
   align-items: center;

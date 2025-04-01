@@ -67,6 +67,23 @@ const sendEmail = async (to, subject, text) => {
   }
 };
 
+const isAdminOrCoordinator = async (req, res, next) => {
+  try {
+    const userRef = dbUser.child(req.user.id);
+    const snapshot = await userRef.once('value');
+    const userData = snapshot.val();
+
+    if (userData && (userData.role === 'admin' || userData.role === 'coordinator')) {
+      next();
+    } else {
+      res.status(403).json({ message: 'Access denied. Admin or Coordinator role required.' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+
 // Check if user is coordinator
 const isAdmin = async (req, res, next) => {
   try {
@@ -75,6 +92,21 @@ const isAdmin = async (req, res, next) => {
     const userData = snapshot.val();
     
     if (userData && userData.role === 'admin') {
+      next();
+    } else {
+      res.status(403).json({ message: 'Access denied. Admin role required.' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+const isCoordinator = async (req, res, next) => {
+  try {
+    const userRef = dbUser.child(req.user.id);
+    const snapshot = await userRef.once('value');
+    const userData = snapshot.val();
+    
+    if (userData && userData.role === 'coordinator') {
       next();
     } else {
       res.status(403).json({ message: 'Access denied. Coordinator role required.' });
@@ -280,7 +312,7 @@ router.post('/new-password', authenticateToken, async (req, res) => {
 });
 
 //get users
-router.get('/users',  async (req, res) => {
+router.get('/users', authenticateToken, isAdminOrCoordinator, async (req, res) => {
   try {
     const usersRef = dbUser;
     const snapshot = await usersRef.once('value');
@@ -356,7 +388,7 @@ router.patch('/profile', authenticateToken, async (req, res) => {
   }
 });
 
-router.post('/events', authenticateToken, async (req, res) => {
+router.post('/events', authenticateToken, isAdminOrCoordinator, async (req, res) => {
   try{
     const {name, date, time, numberOfPeople, age, isHungarian, isFull} = req.body;
     if (!name || !date || !time || !numberOfPeople || !age || isHungarian == null) {
@@ -425,7 +457,7 @@ router.get('/events', authenticateToken, async (req, res) => {
 });
 
 // get event by id
-router.get('/events/:id', authenticateToken, isAdmin, async (req, res) => {
+router.get('/events/:id', authenticateToken, isAdminOrCoordinator, async (req, res) => {
   try {
     const eventId = req.params.id;
     const eventRef = dbEvents.child(eventId);
@@ -441,7 +473,6 @@ router.get('/events/:id', authenticateToken, isAdmin, async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
-
 
 router.delete('/events/:id', authenticateToken, isAdmin, async (req, res) => {
   try {
@@ -477,7 +508,6 @@ router.delete('/events/:id', authenticateToken, isAdmin, async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
-
 
 //register to event
 router.post('/events/:id/register', authenticateToken, async (req, res) => {
@@ -572,7 +602,6 @@ router.delete('/events/:id/unregister', authenticateToken, async (req, res) => {
   }
 });
 
-
 router.get('/my-events', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -598,8 +627,7 @@ router.get('/my-events', authenticateToken, async (req, res) => {
   }
 });
 
-
-router.get('/events/:id/registered-users', authenticateToken, isAdmin, async (req, res) => {
+router.get('/events/:id/registered-users', authenticateToken, isAdminOrCoordinator, async (req, res) => {
   try {
     const eventId = req.params.id;
     const snapshot = await dbUserEvents.once('value');
@@ -652,6 +680,31 @@ router.get('/events/:id/registered-users', authenticateToken, isAdmin, async (re
   }
 });
 
+// ⬇️ Frissítjük a user szerepkörét
+router.patch('/users/:id/role', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { role } = req.body;
+
+    const validRoles = ['admin', 'coordinator', 'animator'];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ message: 'Invalid role provided' });
+    }
+
+    const userRef = dbUser.child(userId);
+    const snapshot = await userRef.once('value');
+
+    if (!snapshot.exists()) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    await userRef.update({ role });
+
+    res.status(200).json({ message: `User role updated to ${role}` });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
 
 
 module.exports = router;

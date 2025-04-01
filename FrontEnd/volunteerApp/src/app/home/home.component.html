@@ -5,6 +5,13 @@
     <img src="close.png" class="empty">
   </div>
   <section class="filter-table" *ngIf="paginatedEvents.length > 0">
+    <div class="pagination">
+      <button class="paginationButton" (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1">Előző</button>
+
+      <span>Oldal {{ currentPage }} / {{ totalPages }}</span>
+
+      <button class="paginationButton" (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPages">Következő</button>
+    </div>
     <table class="table">
       <tr class="table-header">
         <th>Esemény neve</th>
@@ -34,13 +41,7 @@
         <td *ngIf="isAdmin"><img src="info.png" class="details" (click)="eventDetails(event.id)"></td>
       </tr>
     </table>
-    <div class="pagination">
-      <button class="paginationButton" (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1">Előző</button>
 
-      <span>Oldal {{ currentPage }} / {{ totalPages }}</span>
-
-      <button class="paginationButton" (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPages">Következő</button>
-    </div>
   </section>
 </div>
 
@@ -53,10 +54,18 @@
   </div>
 
   <section class="filter-table" *ngIf="paginatedRegisteredEvents.length > 0">
-    <aside>
-      <button class="filter">Exportálás Google Calendarba</button>
+    <aside class="buttons-aside">
+      <div class="pagination">
+        <button class="export">Exportálás Google Calendarba</button>
+        <div class="pagination2">
+
+          <button class="paginationButton" (click)="registeredCurrentPage = registeredCurrentPage - 1" [disabled]="registeredCurrentPage === 1">Előző</button>
+          <span>Oldal {{ registeredCurrentPage }} / {{ registeredTotalPages }}</span>
+          <button class="paginationButton" (click)="registeredCurrentPage = registeredCurrentPage + 1" [disabled]="registeredCurrentPage === registeredTotalPages">Következő</button>
+        </div>
+      </div>
     </aside>
-    <table class="table">
+      <table class="table">
       <tr class="table-header">
         <th>Esemény neve</th>
         <th>Dátum kezdete</th>
@@ -76,10 +85,6 @@
         <td><a class="btn" (click)="onClickApply(event.id)">Lejelentkezés</a></td>
       </tr>
     </table>
-    <div class="pagination">
-      <button class="paginationButton" (click)="registeredCurrentPage = registeredCurrentPage - 1" [disabled]="registeredCurrentPage === 1">Előző</button>
-      <span>Oldal {{ registeredCurrentPage }} / {{ registeredTotalPages }}</span>
-      <button class="paginationButton" (click)="registeredCurrentPage = registeredCurrentPage + 1" [disabled]="registeredCurrentPage === registeredTotalPages">Következő</button>
-    </div>
+
   </section>
 </div>

@@ -6,26 +6,44 @@
         <th>Felhasználó neve</th>
         <th>Email cím</th>
         <th>Telefonszám</th>
-        <th>Admin</th>
+        <th *ngIf="isAdmin && !isCoordinator">Admin</th>
+        <th *ngIf="isAdmin && !isCoordinator">Koordinátor</th>
       </tr>
+
+
       <tr *ngFor="let user of paginatedUsers">
-        <td>{{user.name}}</td>
-        <td>{{user.email}}</td>
-        <td>{{user.phoneNumber}}</td>
-        @if (user.role=="admin"){
-          <td>{{"igen"}}</td>
-        }
-        @else{
-          <td>{{"nem"}}</td>
-        }
+        <td>{{ user.name }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.phoneNumber }}</td>
+
+        <!-- Admin checkbox -->
+        <td *ngIf="isAdmin && !isCoordinator">
+          <input
+            type="checkbox"
+            [checked]="user?.role === 'admin'"
+            [disabled]="user?.role === 'coordinator'"
+            (change)="onRoleToggle(user, $event, 'admin')"
+          />
+        </td>
+
+        <td *ngIf="isAdmin && !isCoordinator">
+          <input
+            type="checkbox"
+            [checked]="user?.role === 'coordinator'"
+            [disabled]="user?.role === 'admin'"
+            (change)="onRoleToggle(user, $event, 'coordinator')"
+          />
+        </td>
+
       </tr>
+
       </table>
+      <div class="pagination">
+        <button (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1">Előző</button>
+
+        <span>Oldal {{ currentPage }} / {{ totalPages }}</span>
+
+        <button (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPages">Következő</button>
+      </div>
   </section>
-  <div class="pagination">
-    <button (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1">Előző</button>
-
-    <span>Oldal {{ currentPage }} / {{ totalPages }}</span>
-
-    <button (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPages">Következő</button>
-  </div>
 </div>

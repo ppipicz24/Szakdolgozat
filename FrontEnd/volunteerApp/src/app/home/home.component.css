@@ -10,9 +10,9 @@
 
 .pagination{
   display: flex;
-  justify-content: center;
-  /* margin-top: 10px; */
-  margin-bottom: 50px;
+  justify-content: space-between;
+  margin-top: 10px;
+  margin-top: 50px;
   font-size: 14px;
   font-weight: bolder;
   letter-spacing: -0.25px;
@@ -32,4 +32,16 @@
 .paginationButton:disabled{
   background-color: #8e94c5;
   cursor: not-allowed;
+}
+
+
+.export{
+  background-color: #283692;
+  color: white;
+  font-size: 18px;
+  font-weight: 500;
+  /* padding: 10px; */
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
 }

@@ -73,10 +73,20 @@ export class AuthService {
   }
 
   fetchUser(url: string) {
-    return this.httpClient.get<{ users: AuthData[] }>(url).pipe(
+    const token = localStorage.getItem('token');
+
+            if (!token) {
+              this.router.navigate(['/auth']); // Ha nincs token, átirányítás loginra
+              return new Observable();
+            }
+
+        const headers = new HttpHeaders({
+              Authorization: `Bearer ${token}`
+        });
+
+    return this.httpClient.get<{ users: AuthData[] }>(url, {headers}).pipe(
       tap((resData) => console.log('API response:', resData)),
       catchError((error) => {
-        console.error('Error fetching users:', error);
         this.errorService.showError(error.message);
         return throwError(() => new Error(error.message));
       })
@@ -86,7 +96,6 @@ export class AuthService {
   loadUser() {
     this.fetchUser(`${this.apiUrl}/users`).subscribe({
       next: (users: any) => {
-        console.log('Users loaded:', users);
         this.usersSubject.next(users); // Frissítjük a BehaviorSubject-et
       },
       error: (err) => console.error('Error loading users:', err),
@@ -98,51 +107,16 @@ export class AuthService {
       .post<AuthData>(`${this.apiUrl}/register`, user)
       .subscribe({
         next: (user) => {
-          console.log('User added:', user);
           const currentUsers = this.usersSubject.value; // **Megkapjuk a jelenlegi usereket**
           this.usersSubject.next([...currentUsers, user]); // **Új felhasználó hozzáadása**
         },
         error: (err) => {
-          console.error('Error adding user:', err);
-          this.errorService.showError(err.message);
+                    this.errorService.showError(err.message);
         },
       });
   }
 
-  // **Login metódus**
-  //  login(email: string, password: string) {
-  //   console.log("Bejelentkezési kérés:", { email, password });
-
-  //   return this.httpClient.post<{ token: string, user: any }>(
-  //     `${this.apiUrl}/login`,
-  //     { email, password },
-  //     { observe: 'response' }
-  //   ).pipe(
-  //     tap(response => {
-  //       console.log("Login response:", response);
-
-  //       const token = response.body?.token;
-  //       const user = response.body?.user;
-
-  //       if (!token || !user) {
-  //         throw new Error("Hibás szerver válasz! Token vagy user hiányzik.");
-  //       }
-
-  //       localStorage.setItem('token', token);
-  //       localStorage.setItem('user', JSON.stringify(user));
-
-  //       this.tokenSubject.next(token);
-  //       this.userSubject.next(user); // **Frissítjük a BehaviorSubject-et is**
-  //     }),
-  //     catchError(error => {
-  //       console.error("Login sikertelen:", error);
-  //       return throwError(() => new Error("Hibás felhasználónév vagy jelszó!"));
-  //     })
-  //   );
-  // }
-
   login(email: string, password: string) {
-    console.log('Bejelentkezési kérés:', { email, password });
 
     return this.httpClient
       .post<{ token: string; user: any }>(
@@ -152,7 +126,6 @@ export class AuthService {
       )
       .pipe(
         tap((response) => {
-          console.log('Login response:', response);
 
           const token = response.body?.token;
           const user = response.body?.user;
@@ -175,7 +148,6 @@ export class AuthService {
           this.autoLogout(expiresInMs);
         }),
         catchError((error) => {
-          console.error('Login sikertelen:', error);
           return throwError(
             () => new Error('Hibás felhasználónév vagy jelszó!')
           );
@@ -229,8 +201,6 @@ export class AuthService {
       .patch(`${this.apiUrl}/profile`, updatedData, { headers })
       .pipe(
         tap((response) => {
-          console.log('Profile updated successfully:', response);
-
           // **Frissítsük a helyi user adatokat**
           const storedUser = localStorage.getItem('user');
           if (storedUser) {
@@ -243,5 +213,21 @@ export class AuthService {
           }
         })
       );
+  }
+  updateUserRole(userId: string, role: string) {
+    const token = localStorage.getItem('token');
+    if (!token) return new Observable();
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+
+    return this.httpClient.patch(`${this.apiUrl}/users/${userId}/role`, { role }, { headers }).pipe(
+      tap(() => console.log("Szerepkör frissítve:", role)),
+      catchError(err => {
+        this.errorService.showError(err.message);
+        return throwError(() => new Error(err.message));
+      })
+    );
   }
 }

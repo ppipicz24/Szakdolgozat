@@ -2,6 +2,7 @@ import { Component, OnInit} from '@angular/core';
 import { AuthService } from '../auth/auth.service';
 import { AuthData } from '../auth/auth.model';
 import { CommonModule } from '@angular/common';
+import { ErrorService } from '../shared/error.service';
 
 
 @Component({
@@ -12,6 +13,8 @@ import { CommonModule } from '@angular/common';
 })
 export class UsersComponent implements OnInit {
   users: AuthData[] = [];
+  isAdmin: boolean = false;
+  isCoordinator: boolean = false;
 
   currentPage: number = 1;
   itemsPerPage: number = 5;
@@ -26,13 +29,40 @@ export class UsersComponent implements OnInit {
     return Math.ceil(this.users.length / this.itemsPerPage);
   }
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private errorService: ErrorService) {}
 
   ngOnInit() {
     this.authService.loadUser();
     this.authService.users$.subscribe(users => {
       this.users = users; // Amint az adat megérkezik, frissül a `users` tömb
+      this.isAdmin = users.some(user => user.role === 'admin'); // Ellenőrizzük, hogy van-e admin jogosultságú felhasználó
+      this.isCoordinator = users.some(user => user.role === 'coordinator'); // Ellenőrizzük, hogy van-e koordinátor jogosultságú felhasználó
       console.log("Users updated:", this.users);
     });
   }
+
+  updateUserRole(user: any, newRole: string): void {
+    if (user.role === newRole) return; // nincs változás
+
+    this.authService.updateUserRole(user.id, newRole).subscribe({
+      next: () => {
+        user.role = newRole;
+        console.log(`${user.name} szerepköre frissítve: ${newRole}`);
+      },
+      error: (err) => {
+        console.error("Hiba a szerepkör frissítésekor:", err);
+        this.errorService.showError("Nem sikerült frissíteni a szerepkört.");
+      }
+    });
+  }
+
+  onRoleToggle(user: any, event: Event, newRole: string): void {
+    const input = event.target as HTMLInputElement;
+    const isChecked = input.checked;
+
+    const roleToSet = isChecked ? newRole : 'animator';
+
+    this.updateUserRole(user, roleToSet);
+  }
+
 }
