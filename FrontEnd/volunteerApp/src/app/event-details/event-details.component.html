@@ -3,7 +3,12 @@
   <section class="filter-table">
     <a routerLink="/home" class="back"><img src="back_arrow.png" class="icon">Vissza a főoldalra</a>
 
-    <table class="table">
+    <div *ngIf="registeredUsers.length==0">
+      <h2 >Jelenleg még senki nem jelentkezett az eseményre</h2>
+      <img src="close.png" class="empty">
+    </div>
+
+    <table class="table" *ngIf="registeredUsers.length > 0">
       <tr class="table-header">
         <th>Név</th>
         <th>Email</th>
@@ -15,10 +20,7 @@
         <td>{{user.email}}</td>
         <td>{{user.phoneNumber}}</td>
       </tr>
-
-
     </table>
 
   </section>
 </div>
-<p>event-details works!</p>
