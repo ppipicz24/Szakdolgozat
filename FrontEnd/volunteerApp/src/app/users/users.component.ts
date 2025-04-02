@@ -16,6 +16,9 @@ export class UsersComponent implements OnInit {
   isAdmin: boolean = false;
   isCoordinator: boolean = false;
 
+  isAdminUser: boolean = false; // Admin jogosultság változó
+  isCoordinatorUser: boolean = false; // Koordinátor jogosultság változó
+
   currentPage: number = 1;
   itemsPerPage: number = 5;
 
@@ -32,11 +35,21 @@ export class UsersComponent implements OnInit {
   constructor(private authService: AuthService, private errorService: ErrorService) {}
 
   ngOnInit() {
+    this.authService.getUser().subscribe((user) => {
+
+      if (user && typeof user === 'object' && user.role==='admin') {
+        this.isAdmin = true;
+      } else if(user && typeof user === 'object' && user.role==='coordinator'){
+        this.isCoordinator = true;
+      }
+    });
+
     this.authService.loadUser();
     this.authService.users$.subscribe(users => {
       this.users = users; // Amint az adat megérkezik, frissül a `users` tömb
-      this.isAdmin = users.some(user => user.role === 'admin'); // Ellenőrizzük, hogy van-e admin jogosultságú felhasználó
-      this.isCoordinator = users.some(user => user.role === 'coordinator'); // Ellenőrizzük, hogy van-e koordinátor jogosultságú felhasználó
+      this.isAdminUser = users.some(user => user.role === 'admin'); // Ellenőrizzük, hogy van-e admin jogosultságú felhasználó
+      this.isCoordinatorUser = users.some(user => user.role === 'coordinator'); // Ellenőrizzük, hogy van-e koordinátor jogosultságú felhasználó
+
       console.log("Users updated:", this.users);
     });
   }
