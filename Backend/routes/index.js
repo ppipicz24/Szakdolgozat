@@ -510,6 +510,57 @@ router.delete('/events/:id', authenticateToken, isAdmin, async (req, res) => {
 });
 
 //register to event
+// router.post('/events/:id/register', authenticateToken, async (req, res) => {
+//   console.log("REGISTER ENDPOINT HÍVVA:", req.params.id, "UserID:", req.user?.id);
+//   try {
+//     const eventId = req.params.id;
+//     const userId = req.user.id;
+
+//     // Ellenőrizzük, hogy az esemény létezik-e
+//     const eventSnapshot = await dbEvents.child(eventId).once('value');
+//     if (!eventSnapshot.exists()) {
+//       return res.status(404).json({ message: 'Event not found' });
+//     }
+
+//     // Ellenőrizzük, hogy a user már jelentkezett-e az eseményre
+//     const existingRegistrationSnapshot = await dbUserEvents
+//       .orderByChild('user_event')
+//       .equalTo(`${userId}_${eventId}`)
+//       .once('value');
+
+//     if (existingRegistrationSnapshot.exists()) {
+//       return res.status(400).json({ message: 'User already registered for this event' });
+//     }
+
+//     // Jelentkezés mentése
+//     const newUserEventRef = dbUserEvents.push();
+//     await newUserEventRef.set({
+//       id: newUserEventRef.key,
+//       userId,
+//       eventId,
+//       user_event: `${userId}_${eventId}`, // azonosító a kereshetőséghez
+//       registeredAt: admin.database.ServerValue.TIMESTAMP
+//     });
+
+//     // Felhasználó e-mail címének lekérése
+//     const userSnapshot = await dbUser.child(userId).once('value');
+//     const userData = userSnapshot.val();
+
+//     // Email küldése
+//     const eventData = eventSnapshot.val();
+//     await sendEmail(
+//       userData.email,
+//       'Esemény jelentkezés megerősítése',
+//       `Sikeresen jelentkeztél a(z) "${eventData.name}" eseményre, amely ${eventData.date} kerül megrendezésre. Az esemény időtartama: ${eventData.time} óra. `
+//     );
+
+//     res.status(200).json({ message: 'Successfully registered for the event' });
+//   } catch (error) {
+//     console.error('Error during event registration:', error);
+//     res.status(500).json({ message: 'Server error', error: error.message });
+//   }
+// });
+
 router.post('/events/:id/register', authenticateToken, async (req, res) => {
   console.log("REGISTER ENDPOINT HÍVVA:", req.params.id, "UserID:", req.user?.id);
   try {
@@ -538,21 +589,42 @@ router.post('/events/:id/register', authenticateToken, async (req, res) => {
       id: newUserEventRef.key,
       userId,
       eventId,
-      user_event: `${userId}_${eventId}`, // azonosító a kereshetőséghez
+      user_event: `${userId}_${eventId}`,
       registeredAt: admin.database.ServerValue.TIMESTAMP
     });
 
-    // Felhasználó e-mail címének lekérése
+    // Lekérjük a user és esemény adatait
     const userSnapshot = await dbUser.child(userId).once('value');
     const userData = userSnapshot.val();
-
-    // Email küldése
     const eventData = eventSnapshot.val();
+
+    // ✅ Email a jelentkezőnek
     await sendEmail(
       userData.email,
       'Esemény jelentkezés megerősítése',
-      `Sikeresen jelentkeztél a(z) "${eventData.name}" eseményre, amely ${eventData.date} kerül megrendezésre. Az esemény időtartama: ${eventData.time} óra. `
+      `Sikeresen jelentkeztél a(z) "${eventData.name}" eseményre, amely ${eventData.date} kerül megrendezésre. Az esemény időtartama: ${eventData.time} óra.`
     );
+
+    // ✅ Email minden koordinátornak
+    const allUsersSnapshot = await dbUser.once('value');
+    const coordinatorEmails = [];
+
+    allUsersSnapshot.forEach(childSnap => {
+      const u = childSnap.val();
+      if (u?.role === 'coordinator' && u?.email && u?.email !== userData.email) {
+        coordinatorEmails.push(u.email);
+      }
+    });
+
+    const coordinatorMessage = `Új jelentkezés érkezett az eseményre: "${eventData.name}" (${eventData.date})\n\nJelentkező neve: ${userData.name}`;
+
+    for (const email of coordinatorEmails) {
+      await sendEmail(
+        email,
+        'Új jelentkezés eseményre',
+        coordinatorMessage
+      );
+    }
 
     res.status(200).json({ message: 'Successfully registered for the event' });
   } catch (error) {
@@ -560,6 +632,7 @@ router.post('/events/:id/register', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
 
 router.delete('/events/:id/unregister', authenticateToken, async (req, res) => {
   try {
@@ -593,6 +666,27 @@ router.delete('/events/:id/unregister', authenticateToken, async (req, res) => {
         userData.email,
         'Lejelentkezés eseményről',
         `Sikeresen lejelentkeztél a(z) "${eventData.name}" eseményről (${eventData.date} - ${eventData.time}).`
+      );
+    }
+
+    // ✅ Email minden koordinátornak
+    const allUsersSnapshot = await dbUser.once('value');
+    const coordinatorEmails = [];
+
+    allUsersSnapshot.forEach(childSnap => {
+      const u = childSnap.val();
+      if (u?.role === 'coordinator' && u?.email && u?.email !== userData.email) {
+        coordinatorEmails.push(u.email);
+      }
+    });
+
+    const coordinatorMessage = `Lejelentkezés történt eseményről: "${eventData.name}" (${eventData.date})\n\nJelentkező neve: ${userData.name}`;
+
+    for (const email of coordinatorEmails) {
+      await sendEmail(
+        email,
+        'Lejelentkezés eseményről',
+        coordinatorMessage
       );
     }
 

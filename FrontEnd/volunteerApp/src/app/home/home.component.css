@@ -8,7 +8,7 @@
   width: 50px;
 }
 
-.pagination{
+.buttons{
   display: flex;
   justify-content: space-between;
   margin-top: 10px;
@@ -17,6 +17,14 @@
   font-weight: bolder;
   letter-spacing: -0.25px;
   align-items: center;
+}
+
+.pagination{
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  margin-top: 20px;
+
 }
 
 .paginationButton{
