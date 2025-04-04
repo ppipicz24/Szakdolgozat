@@ -6,6 +6,7 @@
   cursor: pointer;
   height: 40px;
   width: 50px;
+
 }
 
 .buttons{
@@ -52,4 +53,10 @@
   padding: 5px 10px;
   border-radius: 5px;
   cursor: pointer;
+}
+
+.entitlement{
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

@@ -15,8 +15,8 @@
     <table class="table">
       <tr class="table-header">
         <th>Esemény neve</th>
-        <th>Dátum kezdete</th>
-        <th>Időtartam</th>
+        <th>Dátum</th>
+        <th>Idő</th>
         <th>Nyelv</th>
         <th>Kor</th>
         <th>Létszám</th>
@@ -27,7 +27,7 @@
       <tr *ngFor="let event of paginatedEvents">
         <td>{{event.name}}</td>
         <td>{{event.date}}</td>
-        <td>{{event.time}} óra</td>
+        <td>{{event.time}}:00</td>
         <td>{{event.isHungarian ? "Magyar" : "Angol"}}</td>
         <td>{{event.age}}</td>
         <td>{{event.numberOfPeople}}</td>
@@ -36,10 +36,9 @@
             {{ registeredEventIds.has(event.id) ? "Lejelentkezés" : "Jelentkezés" }}
           </a>
         </td>
-
-        <td *ngIf="isAdmin"><img src="delete.png" class="delete" (click)="deleteEvent(event.id)"></td>
-        <td *ngIf="isAdmin"><img src="info.png" class="details" (click)="eventDetails(event.id)"></td>
-      </tr>
+          <td *ngIf="isAdmin"><img src="delete.png" class="delete" (click)="deleteEvent(event.id)"></td>
+          <td *ngIf="isAdmin" class="entitlement"><img src="info.png" class="details" (click)="eventDetails(event.id)"></td>
+        </tr>
     </table>
 
   </section>

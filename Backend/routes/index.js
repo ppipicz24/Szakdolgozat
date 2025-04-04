@@ -83,8 +83,6 @@ const isAdminOrCoordinator = async (req, res, next) => {
   }
 };
 
-
-// Check if user is coordinator
 const isAdmin = async (req, res, next) => {
   try {
     const userRef = dbUser.child(req.user.id);
@@ -100,21 +98,22 @@ const isAdmin = async (req, res, next) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-const isCoordinator = async (req, res, next) => {
-  try {
-    const userRef = dbUser.child(req.user.id);
-    const snapshot = await userRef.once('value');
-    const userData = snapshot.val();
+
+// const isCoordinator = async (req, res, next) => {
+//   try {
+//     const userRef = dbUser.child(req.user.id);
+//     const snapshot = await userRef.once('value');
+//     const userData = snapshot.val();
     
-    if (userData && userData.role === 'coordinator') {
-      next();
-    } else {
-      res.status(403).json({ message: 'Access denied. Coordinator role required.' });
-    }
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-};
+//     if (userData && userData.role === 'coordinator') {
+//       next();
+//     } else {
+//       res.status(403).json({ message: 'Access denied. Coordinator role required.' });
+//     }
+//   } catch (error) {
+//     res.status(500).json({ message: 'Server error', error: error.message });
+//   }
+// };
 
 router.post("/register", async (req, res) => {
   try {
@@ -218,14 +217,13 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
-// Logout
+
 router.post('/logout', authenticateToken, (req, res) => {
   // JWT tokens are stateless, so we don't need to do anything server-side
   // The client should remove the token from storage
   res.status(200).json({ message: 'Logout successful' });
 });
 
-//forgot password
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -271,7 +269,6 @@ router.post('/forgot-password', async (req, res) => {
   }
 });
 
-//new password
 router.post('/new-password', authenticateToken, async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
@@ -311,7 +308,6 @@ router.post('/new-password', authenticateToken, async (req, res) => {
   }
 });
 
-//get users
 router.get('/users', authenticateToken, isAdminOrCoordinator, async (req, res) => {
   try {
     const usersRef = dbUser;
@@ -331,7 +327,6 @@ router.get('/users', authenticateToken, isAdminOrCoordinator, async (req, res) =
   }
 });
 
-//lekérjuk a felhasználó adatait
 router.get('/profile', authenticateToken, async (req, res) => {
   try {
     const userRef = dbUser.child(req.user.id);
@@ -411,8 +406,8 @@ router.post('/events', authenticateToken, isAdminOrCoordinator, async (req, res)
       return res.status(400).json({ message: 'Date must be in the future' });
     }
 
-    if (time < 0) {
-      return res.status(400).json({ message: 'Time must be between 0' });
+    if (time < 0 || time > 24) {
+      return res.status(400).json({ message: 'Time must be between 0 and 24' });
     }
 
     if (isFull == null) {
@@ -456,7 +451,6 @@ router.get('/events', authenticateToken, async (req, res) => {
   }
 });
 
-// get event by id
 router.get('/events/:id', authenticateToken, isAdminOrCoordinator, async (req, res) => {
   try {
     const eventId = req.params.id;
@@ -509,58 +503,6 @@ router.delete('/events/:id', authenticateToken, isAdmin, async (req, res) => {
   }
 });
 
-//register to event
-// router.post('/events/:id/register', authenticateToken, async (req, res) => {
-//   console.log("REGISTER ENDPOINT HÍVVA:", req.params.id, "UserID:", req.user?.id);
-//   try {
-//     const eventId = req.params.id;
-//     const userId = req.user.id;
-
-//     // Ellenőrizzük, hogy az esemény létezik-e
-//     const eventSnapshot = await dbEvents.child(eventId).once('value');
-//     if (!eventSnapshot.exists()) {
-//       return res.status(404).json({ message: 'Event not found' });
-//     }
-
-//     // Ellenőrizzük, hogy a user már jelentkezett-e az eseményre
-//     const existingRegistrationSnapshot = await dbUserEvents
-//       .orderByChild('user_event')
-//       .equalTo(`${userId}_${eventId}`)
-//       .once('value');
-
-//     if (existingRegistrationSnapshot.exists()) {
-//       return res.status(400).json({ message: 'User already registered for this event' });
-//     }
-
-//     // Jelentkezés mentése
-//     const newUserEventRef = dbUserEvents.push();
-//     await newUserEventRef.set({
-//       id: newUserEventRef.key,
-//       userId,
-//       eventId,
-//       user_event: `${userId}_${eventId}`, // azonosító a kereshetőséghez
-//       registeredAt: admin.database.ServerValue.TIMESTAMP
-//     });
-
-//     // Felhasználó e-mail címének lekérése
-//     const userSnapshot = await dbUser.child(userId).once('value');
-//     const userData = userSnapshot.val();
-
-//     // Email küldése
-//     const eventData = eventSnapshot.val();
-//     await sendEmail(
-//       userData.email,
-//       'Esemény jelentkezés megerősítése',
-//       `Sikeresen jelentkeztél a(z) "${eventData.name}" eseményre, amely ${eventData.date} kerül megrendezésre. Az esemény időtartama: ${eventData.time} óra. `
-//     );
-
-//     res.status(200).json({ message: 'Successfully registered for the event' });
-//   } catch (error) {
-//     console.error('Error during event registration:', error);
-//     res.status(500).json({ message: 'Server error', error: error.message });
-//   }
-// });
-
 router.post('/events/:id/register', authenticateToken, async (req, res) => {
   console.log("REGISTER ENDPOINT HÍVVA:", req.params.id, "UserID:", req.user?.id);
   try {
@@ -602,7 +544,7 @@ router.post('/events/:id/register', authenticateToken, async (req, res) => {
     await sendEmail(
       userData.email,
       'Esemény jelentkezés megerősítése',
-      `Sikeresen jelentkeztél a(z) "${eventData.name}" eseményre, amely ${eventData.date} kerül megrendezésre. Az esemény időtartama: ${eventData.time} óra.`
+      `Sikeresen jelentkeztél a(z) "${eventData.name}" eseményre, amely ${eventData.date} ${eventData.time}:00 kerül megrendezésre.`
     );
 
     // ✅ Email minden koordinátornak
@@ -616,7 +558,7 @@ router.post('/events/:id/register', authenticateToken, async (req, res) => {
       }
     });
 
-    const coordinatorMessage = `Új jelentkezés érkezett az eseményre: "${eventData.name}" (${eventData.date})\n\nJelentkező neve: ${userData.name}`;
+    const coordinatorMessage = `Új jelentkezés érkezett az eseményre: "${eventData.name}" (${eventData.date} ${eventData.time}:00)\n\nJelentkező neve: ${userData.name}`;
 
     for (const email of coordinatorEmails) {
       await sendEmail(
@@ -632,7 +574,6 @@ router.post('/events/:id/register', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
-
 
 router.delete('/events/:id/unregister', authenticateToken, async (req, res) => {
   try {
@@ -680,7 +621,7 @@ router.delete('/events/:id/unregister', authenticateToken, async (req, res) => {
       }
     });
 
-    const coordinatorMessage = `Lejelentkezés történt eseményről: "${eventData.name}" (${eventData.date})\n\nJelentkező neve: ${userData.name}`;
+    const coordinatorMessage = `Lejelentkezés történt eseményről: "${eventData.name}" (${eventData.date} ${eventData.time}:00)\n\nJelentkező neve: ${userData.name}`;
 
     for (const email of coordinatorEmails) {
       await sendEmail(
@@ -693,6 +634,68 @@ router.delete('/events/:id/unregister', authenticateToken, async (req, res) => {
     res.status(200).json({ message: 'Successfully unregistered from event' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+router.get('/events/send-reminders', async (req, res) => {
+  try {
+    const now = new Date();
+    const twelveHoursLater = new Date(now.getTime() + 12 * 60 * 60 * 1000);
+
+    const eventsSnapshot = await dbEvents.once('value');
+    const userEventsSnapshot = await dbUserEvents.once('value');
+    const usersSnapshot = await dbUser.once('value');
+
+    const upcomingEvents = [];
+    eventsSnapshot.forEach(child => {
+      const event = child.val();
+      const time = event.time || '00:00';
+      const dateTimeString = `${event.date}T${time}:00`;
+
+      const eventDate = new Date(dateTimeString);
+      if (eventDate > now && eventDate <= twelveHoursLater) {
+        upcomingEvents.push(event);
+      }
+    });
+
+    const remindersToSend = [];
+
+    userEventsSnapshot.forEach(child => {
+      const userEvent = child.val();
+
+      if (userEvent.reminderSent === true) return; 
+
+      const event = upcomingEvents.find(e => e.id === userEvent.eventId);
+      if (!event) return;
+
+      const userData = usersSnapshot.child(userEvent.userId).val();
+      if (!userData || !userData.email) return;
+
+      remindersToSend.push({
+        userEventId: child.key,
+        email: userData.email,
+        name: userData.name,
+        eventName: event.name,
+        eventDate: event.date,
+        eventTime: event.time || '00:00'
+      });
+    });
+
+    for (const reminder of remindersToSend) {
+      await sendEmail(
+        reminder.email,
+        `Emlékeztető: hamarosan kezdődik az eseményed!`,
+        `Kedves ${reminder.name}!\n\nNe felejtsd el, hogy hamarosan kezdődik a(z) "${reminder.eventName}" esemény!\nIdőpont: ${reminder.eventDate} ${reminder.eventTime}\n\nSok szeretettel várunk!`
+      );
+
+      await dbUserEvents.child(reminder.userEventId).update({ reminderSent: true });
+    }
+
+    res.status(200).json({
+      message: `Emlékeztetők kiküldve: ${remindersToSend.length} db`
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
@@ -774,7 +777,6 @@ router.get('/events/:id/registered-users', authenticateToken, isAdminOrCoordinat
   }
 });
 
-// ⬇️ Frissítjük a user szerepkörét
 router.patch('/users/:id/role', authenticateToken, isAdmin, async (req, res) => {
   try {
     const userId = req.params.id;
@@ -799,6 +801,5 @@ router.patch('/users/:id/role', authenticateToken, isAdmin, async (req, res) => 
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
-
 
 module.exports = router;
