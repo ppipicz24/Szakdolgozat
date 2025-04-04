@@ -3,12 +3,23 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
-
+const cron = require('node-cron');
+const axios = require('axios');
 
 
 const indexRouter = require('./routes/index');
 
+
 const app = express();
+
+cron.schedule('0 * * * *', async () => {
+  try {
+    await axios.get('http://localhost:3000/send-reminder')
+
+  } catch (error) {
+    console.error('Hiba az automatikus emlékeztető ellenőrzés során:', error.message);
+  }
+});
 
 app.use(logger('dev'));
 app.use(express.json());
