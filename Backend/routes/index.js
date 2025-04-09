@@ -5,6 +5,14 @@ const jwt = require("jsonwebtoken");
 const admin = require("firebase-admin");
 const serviceAccount = require("./../firebase-adminsdk.json");
 const nodemailer = require("nodemailer");
+//google calendarhoz
+const { google } = require("googleapis");
+const oAuth2Client = require('./googleClient'); // előző fájl
+// const fs = require('fs').promises;
+// const path = require('path');
+// const process = require('process');
+// const {authenticate} = require('@google-cloud/local-auth');
+
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -566,7 +574,7 @@ router.post("/events/:id/register", authenticateToken, async (req, res) => {
   }
 });
 
-router.delete("/events/:id/unregister", authenticateToken, async (req, res) => {
+router.delete("/events/:id/unregister", authenticateToken, async (req, res) =>{
   try {
     const eventId = req.params.id;
     const userId = req.user.id;
@@ -672,7 +680,7 @@ router.get("/send-reminder", async (req, res) => {
         sendEmail(
           reminder.email,
           `Emlékeztető: hamarosan kezdődik az eseményed!`,
-          `Kedves ${reminder.name}!\n\nNe felejtsd el, hogy hamarosan kezdődik a(z) "${reminder.eventName}" esemény!\nIdőpont: ${reminder.eventDate} ${reminder.eventTime}\n\nSok szeretettel várunk!`
+          `Kedves ${reminder.name}!\n\nNe felejtsd el, hogy hamarosan kezdődik a(z) "${reminder.eventName}" esemény!\nIdőpont: ${reminder.eventDate} ${reminder.eventTime}:00\n\nSok szeretettel várunk!`
         );
 
         dbUserEvents.child(reminder.userEventId).update({ reminderSent: true });
@@ -788,5 +796,129 @@ router.patch("/users/:id/role",authenticateToken,isAdmin,async (req, res) => {
     }
   }
 );
+
+router.get('/auth/google', (req, res) => {
+  const scopes = ['https://www.googleapis.com/auth/calendar'];
+  const authUrl = oAuth2Client.generateAuthUrl({
+    access_type: 'offline', // refresh_token-et is kér
+    scope: scopes,
+    prompt: 'consent', // mindig megkérdezi, hogy engedélyezze
+  });
+  // const authUrl = oAuth2Client.generateAuthUrl({
+  //   access_type: 'offline',
+  //   scope: ['https://www.googleapis.com/auth/calendar']
+  // });
+  res.redirect(authUrl);
+});
+
+// Google OAuth callback route
+// router.get('/oauth2callback', async (req, res) => {
+//   const code = req.query.code;
+
+//   if (!code) {
+//     return res.status(400).json({ message: 'Hiányzó auth kód a Google-től' });
+//   }
+//   try {
+//     const { tokens } = await oAuth2Client.getToken(code);
+//     oAuth2Client.setCredentials(tokens);
+
+//     // Opcionálisan tárold el vagy küldd vissza a tokeneket
+//     return res.status(200).json({
+//       message: 'Sikeres hitelesítés!',
+//       tokens
+//     });
+//   } catch (error) {
+//     console.error('❌ Hiba a callback feldolgozásakor:', error);
+//     return res.status(500).json({ message: 'Szerverhiba', error: error.message });
+//   }
+// });
+
+
+// router.get('/auth/google/callback', async (req, res) => {
+//   const code = req.query.code;
+//   try {
+//     const { tokens } = await oAuth2Client.getToken(code);
+//     oAuth2Client.setCredentials(tokens);
+
+//     // Ezt itt elmentheted az adatbázisba vagy sessionbe
+//     res.status(200).json({
+//       message: 'Sikeres hitelesítés',
+//       tokens
+//     });
+//   } catch (err) {
+//     console.error("❌ Hibás Google callback:", err);
+//     res.status(500).json({ message: 'Hiba a hitelesítés során' });
+//   }
+// });
+
+router.get('/auth/google/callback', async (req, res) => {
+  const code = req.query.code;
+  try {
+    const { tokens } = await oAuth2Client.getToken(code);
+    oAuth2Client.setCredentials(tokens);
+
+    console.log("✅ Tokent kaptunk:", tokens);
+
+    // Csak a teszteléshez:
+    res.status(200).json({
+      message: 'Sikeres hitelesítés',
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+    });
+  } catch (err) {
+    console.error("❌ Hibás Google callback:", err);
+    res.status(500).json({ message: 'Hiba a hitelesítés során' });
+  }
+});
+
+
+router.post('/export-calendar', authenticateToken, async (req, res) => {
+  try {
+    const { eventId, access_token, refresh_token } = req.body;
+
+    if (!eventId || !access_token) {
+      return res.status(400).json({ message: 'eventId és access_token szükséges' });
+    }
+
+    // Esemény lekérése
+    const eventSnap = await dbEvents.child(eventId).once('value');
+    if (!eventSnap.exists()) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    const event = eventSnap.val();
+
+    oAuth2Client.setCredentials({ access_token, refresh_token });
+
+    const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
+
+    const calendarEvent = {
+      summary: event.name,
+      description: `Automatikus export az appból`,
+      start: {
+        dateTime: new Date(`${event.date}T${event.time || '00'}:00:00`).toISOString(),
+        timeZone: 'Europe/Budapest',
+      },
+      end: {
+        dateTime: new Date(new Date(`${event.date}T${event.time || '00'}:00:00`).getTime() + 2 * 60 * 60 * 1000).toISOString(),
+        timeZone: 'Europe/Budapest',
+      },
+    };
+
+    const response = await calendar.events.insert({
+      calendarId: 'primary',
+      resource: calendarEvent,
+    });
+
+    res.status(200).json({
+      message: 'Sikeresen exportálva a Google Naptárba',
+      link: response.data.htmlLink,
+    });
+
+  } catch (error) {
+    console.error('❌ Export error:', error);
+    res.status(500).json({ message: 'Szerverhiba', error: error.message });
+  }
+});
 
 module.exports = router;
