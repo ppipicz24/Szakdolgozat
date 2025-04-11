@@ -5,4 +5,9 @@ export interface AuthData {
   password: string;
   phoneNumber: string;
   role: string;
+  googleCalendar:{
+    connected: boolean;
+    access_token: string;
+    refresh_token: string;
+  }
 }

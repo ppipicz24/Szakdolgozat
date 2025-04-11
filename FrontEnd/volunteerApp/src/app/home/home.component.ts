@@ -4,7 +4,8 @@ import { EventModel } from '../new-date/event.model';
 import { EventService } from './event.service';
 import { CommonModule } from '@angular/common';
 import { ErrorService } from '../shared/error.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { GoogleCalendarService } from './calendar.service';
 
 @Component({
   selector: 'app-home',
@@ -16,6 +17,7 @@ export class HomeComponent implements OnInit {
   isApplied: boolean = false;
   name: any | null = null;
 
+
   isAdmin: boolean = false;
 
   events: EventModel[] = [];
@@ -25,6 +27,11 @@ export class HomeComponent implements OnInit {
 
   currentPage: number = 1;
   itemsPerPage: number = 5;
+
+  isCalendarConnected: boolean = false;
+  googleAccessToken: string | null = null;
+  googleRefreshToken: string | null = null;
+
 
   get paginatedEvents(): EventModel[] {
     const start = (this.currentPage - 1) * this.itemsPerPage;
@@ -37,33 +44,51 @@ export class HomeComponent implements OnInit {
   }
 
   registeredCurrentPage: number = 1;
-registeredItemsPerPage: number = 5;
+  registeredItemsPerPage: number = 5;
 
-get paginatedRegisteredEvents(): EventModel[] {
-  const start = (this.registeredCurrentPage - 1) * this.registeredItemsPerPage;
-  const end = start + this.registeredItemsPerPage;
-  return this.registeredEvents.slice(start, end);
-}
+  get paginatedRegisteredEvents(): EventModel[] {
+    const start = (this.registeredCurrentPage - 1) * this.registeredItemsPerPage;
+    const end = start + this.registeredItemsPerPage;
+    return this.registeredEvents.slice(start, end);
+  }
 
-get registeredTotalPages(): number {
-  return Math.ceil(this.registeredEvents.length / this.registeredItemsPerPage);
-}
+  get registeredTotalPages(): number {
+    return Math.ceil(this.registeredEvents.length / this.registeredItemsPerPage);
+  }
 
   constructor(
     private authService: AuthService,
     private eventService: EventService,
     private errorService: ErrorService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private googleCalendarService: GoogleCalendarService,
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit() {
-    this.authService.getUser().subscribe((user) => {
-      if (user && typeof user === 'object' && user.name) {
-        this.name = user.name;
-        if (user.role === 'admin') this.isAdmin = true;
-      } else {
-        this.name = null;
-      }
+    // this.authService.getProfile().subscribe((user) => {
+    //   this.name = user.name;
+    //   this.isAdmin = user.role === 'admin';
+    //   console.log('👤 CalendarConnected:', user.googleCalendar.connected);
+    //   this.isCalendarConnected = user.googleCalendar?.connected ?? false;
+
+    //   // 🔄 Frissítsük a helyi tárolt felhasználói adatokat
+    //   localStorage.setItem('user', JSON.stringify(user));
+    //   this.authService.userSubject.next(user);
+    // });
+
+    this.authService.getProfile().subscribe((user) => {
+      this.name = user.name;
+      this.isAdmin = user.role === 'admin';
+
+      const calendarData = user.googleCalendar || {};
+      this.isCalendarConnected = calendarData.connected ?? false;
+      this.googleAccessToken = calendarData.accessToken || null;
+      this.googleRefreshToken = calendarData.refreshToken || null;
+
+      // Frissítés localStorage-ben is, ha máshol szükség lenne rá
+      localStorage.setItem('user', JSON.stringify(user));
+      this.authService.userSubject.next(user);
     });
 
     this.eventService.loadEvents();
@@ -73,6 +98,7 @@ get registeredTotalPages(): number {
         (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
       );
     });
+
     this.eventService.getMyEventIds().subscribe({
       next: (eventIds: string[]) => {
         this.registeredEventIds = new Set(eventIds);
@@ -84,7 +110,115 @@ get registeredTotalPages(): number {
         console.error('Nem sikerült betölteni a saját jelentkezéseket:', err);
       },
     });
+
+    // this.route.queryParamMap.subscribe(params => {
+    //   const accessToken = params.get('access_token');
+    //   console.log('🔑 access_token:', accessToken);
+    //   const refreshToken = params.get('refresh_token');
+    //   console.log('🔑 refresh_token:', refreshToken);
+
+    //   if (accessToken && refreshToken) {
+    //     localStorage.setItem('google_access_token', accessToken);
+    //     localStorage.setItem('google_refresh_token', refreshToken);
+    //     this.isCalendarConnected = true;
+
+    //     // opcionálisan töröljük a query paramokat az URL-ből:
+    //     this.router.navigate([], { queryParams: {} });
+    //   }
+    // });
+
+
+    // 👇 Token cseréje, ha a Google auth-ból tért vissza
+    this.handleGoogleRedirect();
+    this.checkGoogleCalendarConnection();
   }
+
+  checkGoogleCalendarConnection(): void {
+    const accessToken = localStorage.getItem('google_access_token');
+    const refreshToken = localStorage.getItem('google_refresh_token');
+
+    this.isCalendarConnected = !!(accessToken && refreshToken);
+  }
+
+  handleGoogleRedirect() {
+    const code = this.route.snapshot.queryParamMap.get('code');
+    const redirect = this.route.snapshot.queryParamMap.get('redirect');
+    console.log('🔑 code:', code);
+
+    console.log('🔁 redirect param:', redirect);
+
+    if (code) {
+      // this.googleCalendarService.exchangeCodeForTokens(code).subscribe({
+      //   next: (res) => {
+      //     localStorage.setItem('google_access_token', res.access_token);
+      //     localStorage.setItem('google_refresh_token', res.refresh_token);
+      //     this.isCalendarConnected = true; // <- Itt frissítjük
+
+      //     const redirect = this.route.snapshot.queryParamMap.get('redirect');
+      //     this.router.navigate([redirect || '/events']);
+      //   },
+      //   error: (err) => {
+      //     console.error('Hiba a token cserénél', err);
+      //   }
+      // });
+
+      this.googleCalendarService.exchangeCodeForTokens(code).subscribe({
+        next: (res) => {
+          localStorage.setItem('google_access_token', res.access_token);
+          localStorage.setItem('google_refresh_token', res.refresh_token);
+          console.log('🔑 Tokenek mentve');
+
+          this.authService.refreshUser(); // 🔁 Itt frissítjük a user-t
+
+          const redirect = this.route.snapshot.queryParamMap.get('redirect');
+          this.router.navigate([redirect || '/events']);
+        },
+        error: (err) => {
+          console.error('Hiba a token cserénél', err);
+        }
+      });
+    }
+  }
+
+
+  // exportEventToGoogle(eventId: string) {
+  //   const accessToken = localStorage.getItem('google_access_token');
+  //   const refreshToken = localStorage.getItem('google_refresh_token');
+
+  //   if (!accessToken || !refreshToken) {
+  //     console.warn('Nincs meg a Google token. Előbb hitelesíteni kell!');
+  //     return;
+  //   }
+
+  //   this.googleCalendarService.exportToGoogleCalendar(eventId, accessToken, refreshToken).subscribe({
+  //     next: (res) => {
+  //       console.log('📅 Exportálva Google Calendarba:', res);
+  //     },
+  //     error: (err) => {
+  //       console.error('❌ Hiba exportáláskor:', err);
+  //     }
+  //   });
+  // }
+
+  exportEventToGoogle(eventId: string) {
+    if (!this.googleAccessToken || !this.googleRefreshToken) {
+      console.warn('❌ Nincs Google token. Előbb hitelesíteni kell!');
+      return;
+    }
+
+    this.googleCalendarService
+      .exportToGoogleCalendar(eventId, this.googleAccessToken, this.googleRefreshToken)
+      .subscribe({
+        next: (res) => {
+          console.log('📅 Exportálva Google Calendarba:', res);
+        },
+        error: (err) => {
+          console.error('❌ Hiba exportáláskor:', err);
+        },
+      });
+  }
+
+
 
   onClickApply(eventId: string) {
     if (this.registeredEventIds.has(eventId)) {
@@ -149,7 +283,7 @@ get registeredTotalPages(): number {
     this.router.navigate(['/event-details'], {
       queryParams: { eventId: eventId },
     });
-    
+
     this.eventService.getRegisteredUsers(eventId).subscribe({
       next: (event) => {
 
@@ -161,4 +295,15 @@ get registeredTotalPages(): number {
       },
     });
   }
+
+  onConnectGoogleCalendar(): void {
+    this.googleCalendarService.redirectToGoogleAuth();
+  }
+
+
+
+
 }
+
+
+

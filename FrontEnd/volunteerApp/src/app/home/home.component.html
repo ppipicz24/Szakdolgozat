@@ -55,7 +55,10 @@
   <section class="filter-table" *ngIf="paginatedRegisteredEvents.length > 0">
     <aside class="buttons-aside">
       <div class="buttons">
-        <button class="export">Exportálás Google Calendarba</button>
+        <!-- <button class="export" (click)="onConnectGoogleCalendar()">Google Calendar engedélyezése</button> -->
+        <button (click)="onConnectGoogleCalendar()" class="export" [disabled]="isCalendarConnected">
+          {{ isCalendarConnected ? '✅ Csatlakozva Google Calendarhoz' : 'Google Calendar csatlakozás' }}
+        </button>
         <div class="pagination2">
 
           <button class="paginationButton" (click)="registeredCurrentPage = registeredCurrentPage - 1" [disabled]="registeredCurrentPage === 1">Előző</button>
@@ -73,6 +76,7 @@
         <th>Kor</th>
         <th>Létszám</th>
         <th></th>
+        <th></th>
       </tr>
       <tr *ngFor="let event of paginatedRegisteredEvents">
         <td>{{event.name}}</td>
@@ -82,6 +86,9 @@
         <td>{{event.age}}</td>
         <td>{{event.numberOfPeople}}</td>
         <td><a class="btn" (click)="onClickApply(event.id)">Lejelentkezés</a></td>
+        <td>
+          <img src="google-calendar.png" class="calendar" (click)="exportEventToGoogle(event.id)">
+        </td>
       </tr>
     </table>
 

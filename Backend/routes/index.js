@@ -156,6 +156,11 @@ router.post("/register", async (req, res) => {
       phoneNumber,
       email,
       role: role || "animator",
+      googleCalendar: {
+        connected: false,
+        accessToken: "",
+        refreshToken: "",
+      },
       createdAt: admin.database.ServerValue.TIMESTAMP,
     });
 
@@ -314,6 +319,7 @@ router.get("/users",authenticateToken,isAdminOrCoordinator, async (req, res) => 
 
       snapshot.forEach((childSnapshot) => {
         const user = childSnapshot.val();
+        console.log(user);
         // Don't send password
         delete user.password;
         users.push(user);
@@ -338,11 +344,23 @@ router.get("/profile", authenticateToken, async (req, res) => {
     const userData = snapshot.val();
     delete userData.password;
 
+    // Ha nincs benne googleCalendar, akkor adj vissza üres objektumot
+    if (!userData.googleCalendar) {
+      userData.googleCalendar = {
+        connected: false,
+        accessToken: '',
+        refreshToken: ''
+      };
+    }
+
+    console.log(userData);
+
     res.status(200).json(userData);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
+
 
 router.patch("/profile", authenticateToken, async (req, res) => {
   try {
@@ -797,80 +815,50 @@ router.patch("/users/:id/role",authenticateToken,isAdmin,async (req, res) => {
   }
 );
 
-router.get('/auth/google', (req, res) => {
-  const scopes = ['https://www.googleapis.com/auth/calendar'];
+router.get('/auth/google', authenticateToken, (req, res) => {
+  const rawState = req.query.state;
   const authUrl = oAuth2Client.generateAuthUrl({
-    access_type: 'offline', // refresh_token-et is kér
-    scope: scopes,
-    prompt: 'consent', // mindig megkérdezi, hogy engedélyezze
+    access_type: 'offline',
+    scope: ['https://www.googleapis.com/auth/calendar'],
+    prompt: 'consent',
+    state: rawState, // <- már JSON string (!!!)
+    redirect_uri: 'http://localhost:3000/auth/google/callback'
   });
-  // const authUrl = oAuth2Client.generateAuthUrl({
-  //   access_type: 'offline',
-  //   scope: ['https://www.googleapis.com/auth/calendar']
-  // });
-  res.redirect(authUrl);
+
+  res.json({ url: authUrl });
 });
 
-// Google OAuth callback route
-// router.get('/oauth2callback', async (req, res) => {
-//   const code = req.query.code;
-
-//   if (!code) {
-//     return res.status(400).json({ message: 'Hiányzó auth kód a Google-től' });
-//   }
-//   try {
-//     const { tokens } = await oAuth2Client.getToken(code);
-//     oAuth2Client.setCredentials(tokens);
-
-//     // Opcionálisan tárold el vagy küldd vissza a tokeneket
-//     return res.status(200).json({
-//       message: 'Sikeres hitelesítés!',
-//       tokens
-//     });
-//   } catch (error) {
-//     console.error('❌ Hiba a callback feldolgozásakor:', error);
-//     return res.status(500).json({ message: 'Szerverhiba', error: error.message });
-//   }
-// });
-
-
-// router.get('/auth/google/callback', async (req, res) => {
-//   const code = req.query.code;
-//   try {
-//     const { tokens } = await oAuth2Client.getToken(code);
-//     oAuth2Client.setCredentials(tokens);
-
-//     // Ezt itt elmentheted az adatbázisba vagy sessionbe
-//     res.status(200).json({
-//       message: 'Sikeres hitelesítés',
-//       tokens
-//     });
-//   } catch (err) {
-//     console.error("❌ Hibás Google callback:", err);
-//     res.status(500).json({ message: 'Hiba a hitelesítés során' });
-//   }
-// });
 
 router.get('/auth/google/callback', async (req, res) => {
   const code = req.query.code;
+  const rawState = req.query.state || '{}';
+
   try {
+    const parsedState = JSON.parse(rawState);
+    const userId = parsedState.userId;
+    const redirectPath = parsedState.redirect || '/';
+
+    if (!userId) {
+      return res.status(400).json({ message: 'userId missing from state' });
+    }
+
     const { tokens } = await oAuth2Client.getToken(code);
     oAuth2Client.setCredentials(tokens);
 
-    console.log("✅ Tokent kaptunk:", tokens);
-
-    // Csak a teszteléshez:
-    res.status(200).json({
-      message: 'Sikeres hitelesítés',
-      access_token: tokens.access_token,
-      refresh_token: tokens.refresh_token,
+    await admin.database().ref(`users/${userId}/googleCalendar`).set({
+      connected: true,
+      accessToken: tokens.access_token,
+      refreshToken: tokens.refresh_token,
+      connectedAt: Date.now(),
     });
+
+    const redirectUrl = `http://localhost:4200/google/callback?redirect=${redirectPath}`;
+    return res.redirect(302, redirectUrl);
   } catch (err) {
     console.error("❌ Hibás Google callback:", err);
-    res.status(500).json({ message: 'Hiba a hitelesítés során' });
+    return res.status(500).json({ message: 'Hiba a Google hitelesítés során' });
   }
 });
-
 
 router.post('/export-calendar', authenticateToken, async (req, res) => {
   try {
@@ -892,15 +880,16 @@ router.post('/export-calendar', authenticateToken, async (req, res) => {
 
     const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
 
+
     const calendarEvent = {
       summary: event.name,
       description: `Automatikus export az appból`,
       start: {
-        dateTime: new Date(`${event.date}T${event.time || '00'}:00:00`).toISOString(),
+        dateTime: new Date(`${event.date} ${event.time || '00'}:00:00`).toISOString(),
         timeZone: 'Europe/Budapest',
       },
       end: {
-        dateTime: new Date(new Date(`${event.date}T${event.time || '00'}:00:00`).getTime() + 2 * 60 * 60 * 1000).toISOString(),
+        dateTime: new Date(new Date(`${event.date} ${event.time || '00'}:00:00`).getTime() + 2 * 60 * 60 * 1000).toISOString(),
         timeZone: 'Europe/Budapest',
       },
     };

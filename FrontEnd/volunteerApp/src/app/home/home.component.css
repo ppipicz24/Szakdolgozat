@@ -60,3 +60,9 @@
   justify-content: center;
   align-items: center;
 }
+
+.calendar{
+  height: 30px;
+  width: 30px;
+  cursor: pointer;
+}

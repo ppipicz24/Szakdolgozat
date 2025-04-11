@@ -12,7 +12,7 @@ const indexRouter = require('./routes/index');
 
 const app = express();
 
-cron.schedule('0 * * * *', async () => {
+cron.schedule('*/30 * * * *', async () => {
   try {
     await axios.get('http://localhost:3000/send-reminder')
 

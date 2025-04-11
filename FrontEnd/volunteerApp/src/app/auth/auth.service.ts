@@ -137,6 +137,7 @@ export class AuthService {
           // Mentés localStorage-ba
           localStorage.setItem('token', token);
           localStorage.setItem('user', JSON.stringify(user));
+          console.log(user)
 
           // Állapot frissítése
           this.tokenSubject.next(token);
@@ -159,7 +160,22 @@ export class AuthService {
     return this.userSubject.asObservable(); // **Reaktívan követjük a user változásait**
   }
 
+  refreshUser(): void {
+    this.getProfile().subscribe({
+      next: (user) => {
+        this.userSubject.next(user);
+        localStorage.setItem('user', JSON.stringify(user)); // 💾 fontos!
+      },
+      error: (err) => {
+        console.error('Nem sikerült frissíteni a user-t:', err);
+      }
+    });
+  }
+
+
   logout() {
+    localStorage.removeItem('google_access_token');
+    localStorage.removeItem('google_refresh_token');
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.tokenSubject.next(null);
@@ -214,6 +230,7 @@ export class AuthService {
         })
       );
   }
+
   updateUserRole(userId: string, role: string) {
     const token = localStorage.getItem('token');
     if (!token) return new Observable();

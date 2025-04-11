@@ -85,6 +85,11 @@ ngOnInit(): void {
         password: password,
         phoneNumber: phoneNumber,
         role: 'animator',
+        googleCalendar: {
+          connected: false,
+          access_token: '',
+          refresh_token: ''
+        }
       };
       this.authService.addUser(newUser);
       form.reset();

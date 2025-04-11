@@ -9,11 +9,12 @@ import { EditComponent } from './edit/edit.component';
 import { PasswordResetComponent } from './password-reset/password-reset.component';
 import { ForgetPasswordComponent } from './forget-password/forget-password.component';
 import { EventDetailsComponent } from './event-details/event-details.component';
+import { GoogleCallbackComponent } from './home/calendar.compontent';
 
 export const routes: Routes = [
   {path: '', redirectTo: !localStorage.getItem('token') ? '/auth' : '/home', pathMatch: 'full'},
   {path: 'home', component: HomeComponent},
-
+  { path: 'events', redirectTo: '/home', pathMatch: 'full' },
   {path: 'profile', component: ProfileComponent},
   {path: 'users', component: UsersComponent},
   {path: 'auth', component: AuthComponent},
@@ -22,4 +23,8 @@ export const routes: Routes = [
   {path: 'password-reset', component: PasswordResetComponent},
   {path: 'forget-password', component: ForgetPasswordComponent},
   {path: 'event-details', component: EventDetailsComponent},
+  // {path: 'auth/google/callback',component: GoogleCallbackComponent},
+  { path: 'google/callback', component: GoogleCallbackComponent }
+
+
 ];
