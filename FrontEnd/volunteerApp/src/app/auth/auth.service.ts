@@ -39,7 +39,7 @@ export class AuthService {
       const now = Math.floor(Date.now() / 1000); // jelenlegi idő másodpercben
       return decoded.exp < now;
     } catch (e) {
-      return true; // ha hiba van, tekintsd érvénytelennek
+      return true; 
     }
   }
 
@@ -76,7 +76,7 @@ export class AuthService {
     const token = localStorage.getItem('token');
 
             if (!token) {
-              this.router.navigate(['/auth']); // Ha nincs token, átirányítás loginra
+              this.router.navigate(['/auth']);
               return new Observable();
             }
 
@@ -107,8 +107,8 @@ export class AuthService {
       .post<AuthData>(`${this.apiUrl}/register`, user)
       .subscribe({
         next: (user) => {
-          const currentUsers = this.usersSubject.value; // **Megkapjuk a jelenlegi usereket**
-          this.usersSubject.next([...currentUsers, user]); // **Új felhasználó hozzáadása**
+          const currentUsers = this.usersSubject.value;
+          this.usersSubject.next([...currentUsers, user]);
         },
         error: (err) => {
                     this.errorService.showError(err.message);
@@ -134,16 +134,14 @@ export class AuthService {
             throw new Error('Hibás szerver válasz! Token vagy user hiányzik.');
           }
 
-          // Mentés localStorage-ba
           localStorage.setItem('token', token);
           localStorage.setItem('user', JSON.stringify(user));
           console.log(user)
 
-          // Állapot frissítése
           this.tokenSubject.next(token);
           this.userSubject.next(user);
 
-          // ⏱️ Token lejárat figyelése
+          // Token lejárat figyelése
           const decoded: any = jwtDecode(token);
           const expiresInMs = decoded.exp * 1000 - Date.now(); // ms-ben
           this.autoLogout(expiresInMs);
@@ -157,7 +155,7 @@ export class AuthService {
   }
 
   getUser() {
-    return this.userSubject.asObservable(); // **Reaktívan követjük a user változásait**
+    return this.userSubject.asObservable();
   }
 
   refreshUser(): void {
@@ -179,7 +177,7 @@ export class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.tokenSubject.next(null);
-    this.userSubject.next(null); // **Felhasználói adatok törlése**
+    this.userSubject.next(null);
   }
 
   isLoggedIn(): boolean {
@@ -190,7 +188,7 @@ export class AuthService {
     const token = localStorage.getItem('token');
 
     if (!token) {
-      this.router.navigate(['/auth']); // Ha nincs token, átirányítás loginra
+      this.router.navigate(['/auth']);
       return new Observable();
     }
 
@@ -217,13 +215,12 @@ export class AuthService {
       .patch(`${this.apiUrl}/profile`, updatedData, { headers })
       .pipe(
         tap((response) => {
-          // **Frissítsük a helyi user adatokat**
+
           const storedUser = localStorage.getItem('user');
           if (storedUser) {
             const user = JSON.parse(storedUser);
-            const updatedUser = { ...user, ...updatedData }; // **Csak a módosított mezők frissülnek**
+            const updatedUser = { ...user, ...updatedData };
 
-            // **Frissített user mentése és behavior subject frissítése**
             localStorage.setItem('user', JSON.stringify(updatedUser));
             this.userSubject.next(updatedUser);
           }

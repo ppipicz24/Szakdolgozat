@@ -66,17 +66,6 @@ export class HomeComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    // this.authService.getProfile().subscribe((user) => {
-    //   this.name = user.name;
-    //   this.isAdmin = user.role === 'admin';
-    //   console.log('👤 CalendarConnected:', user.googleCalendar.connected);
-    //   this.isCalendarConnected = user.googleCalendar?.connected ?? false;
-
-    //   // 🔄 Frissítsük a helyi tárolt felhasználói adatokat
-    //   localStorage.setItem('user', JSON.stringify(user));
-    //   this.authService.userSubject.next(user);
-    // });
-
     this.authService.getProfile().subscribe((user) => {
       this.name = user.name;
       this.isAdmin = user.role === 'admin';
@@ -111,23 +100,6 @@ export class HomeComponent implements OnInit {
       },
     });
 
-    // this.route.queryParamMap.subscribe(params => {
-    //   const accessToken = params.get('access_token');
-    //   console.log('🔑 access_token:', accessToken);
-    //   const refreshToken = params.get('refresh_token');
-    //   console.log('🔑 refresh_token:', refreshToken);
-
-    //   if (accessToken && refreshToken) {
-    //     localStorage.setItem('google_access_token', accessToken);
-    //     localStorage.setItem('google_refresh_token', refreshToken);
-    //     this.isCalendarConnected = true;
-
-    //     // opcionálisan töröljük a query paramokat az URL-ből:
-    //     this.router.navigate([], { queryParams: {} });
-    //   }
-    // });
-
-
     // 👇 Token cseréje, ha a Google auth-ból tért vissza
     this.handleGoogleRedirect();
     this.checkGoogleCalendarConnection();
@@ -148,25 +120,10 @@ export class HomeComponent implements OnInit {
     console.log('🔁 redirect param:', redirect);
 
     if (code) {
-      // this.googleCalendarService.exchangeCodeForTokens(code).subscribe({
-      //   next: (res) => {
-      //     localStorage.setItem('google_access_token', res.access_token);
-      //     localStorage.setItem('google_refresh_token', res.refresh_token);
-      //     this.isCalendarConnected = true; // <- Itt frissítjük
-
-      //     const redirect = this.route.snapshot.queryParamMap.get('redirect');
-      //     this.router.navigate([redirect || '/events']);
-      //   },
-      //   error: (err) => {
-      //     console.error('Hiba a token cserénél', err);
-      //   }
-      // });
-
       this.googleCalendarService.exchangeCodeForTokens(code).subscribe({
         next: (res) => {
           localStorage.setItem('google_access_token', res.access_token);
           localStorage.setItem('google_refresh_token', res.refresh_token);
-          console.log('🔑 Tokenek mentve');
 
           this.authService.refreshUser(); // 🔁 Itt frissítjük a user-t
 
@@ -181,28 +138,10 @@ export class HomeComponent implements OnInit {
   }
 
 
-  // exportEventToGoogle(eventId: string) {
-  //   const accessToken = localStorage.getItem('google_access_token');
-  //   const refreshToken = localStorage.getItem('google_refresh_token');
-
-  //   if (!accessToken || !refreshToken) {
-  //     console.warn('Nincs meg a Google token. Előbb hitelesíteni kell!');
-  //     return;
-  //   }
-
-  //   this.googleCalendarService.exportToGoogleCalendar(eventId, accessToken, refreshToken).subscribe({
-  //     next: (res) => {
-  //       console.log('📅 Exportálva Google Calendarba:', res);
-  //     },
-  //     error: (err) => {
-  //       console.error('❌ Hiba exportáláskor:', err);
-  //     }
-  //   });
-  // }
 
   exportEventToGoogle(eventId: string) {
     if (!this.googleAccessToken || !this.googleRefreshToken) {
-      console.warn('❌ Nincs Google token. Előbb hitelesíteni kell!');
+      console.warn('Nincs Google token. Előbb hitelesíteni kell!');
       return;
     }
 
@@ -210,10 +149,10 @@ export class HomeComponent implements OnInit {
       .exportToGoogleCalendar(eventId, this.googleAccessToken, this.googleRefreshToken)
       .subscribe({
         next: (res) => {
-          console.log('📅 Exportálva Google Calendarba:', res);
+          console.log('Exportálva Google Calendarba:', res);
         },
         error: (err) => {
-          console.error('❌ Hiba exportáláskor:', err);
+          console.error('Hiba exportáláskor:', err);
         },
       });
   }

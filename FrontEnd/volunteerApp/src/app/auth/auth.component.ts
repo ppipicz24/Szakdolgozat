@@ -62,7 +62,6 @@ ngOnInit(): void {
           console.log("Login sikeres!");
           this.error = "";
           this.router.navigate(['/home']);
-          // window.location.reload();
         },
         error: (err) => {
           console.error("Login hiba:", err);

@@ -16,7 +16,6 @@ export class GoogleCallbackComponent implements OnInit {
     if (accessToken && refreshToken) {
       localStorage.setItem('google_access_token', accessToken);
       localStorage.setItem('google_refresh_token', refreshToken);
-      console.log('🎉 Google tokenek mentve localStorage-ba!');
     } else {
       console.warn('Hiányzik a token!');
     }

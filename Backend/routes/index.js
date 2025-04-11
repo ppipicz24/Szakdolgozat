@@ -7,11 +7,7 @@ const serviceAccount = require("./../firebase-adminsdk.json");
 const nodemailer = require("nodemailer");
 //google calendarhoz
 const { google } = require("googleapis");
-const oAuth2Client = require('./googleClient'); // előző fájl
-// const fs = require('fs').promises;
-// const path = require('path');
-// const process = require('process');
-// const {authenticate} = require('@google-cloud/local-auth');
+const oAuth2Client = require('./googleClient');
 
 
 admin.initializeApp({
@@ -855,7 +851,7 @@ router.get('/auth/google/callback', async (req, res) => {
     const redirectUrl = `http://localhost:4200/google/callback?redirect=${redirectPath}`;
     return res.redirect(302, redirectUrl);
   } catch (err) {
-    console.error("❌ Hibás Google callback:", err);
+    console.error("Hibás Google callback:", err);
     return res.status(500).json({ message: 'Hiba a Google hitelesítés során' });
   }
 });
@@ -905,7 +901,7 @@ router.post('/export-calendar', authenticateToken, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Export error:', error);
+    console.error('Export error:', error);
     res.status(500).json({ message: 'Szerverhiba', error: error.message });
   }
 });

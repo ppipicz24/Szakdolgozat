@@ -42,7 +42,7 @@ export class GoogleCalendarService {
       { headers }
     ).subscribe({
       next: (res) => {
-        console.log('➡️ Redirecting to Google:', res.url);
+        console.log('Redirecting to Google:', res.url);
         window.location.href = res.url;
       },
       error: (err) => {
@@ -52,39 +52,9 @@ export class GoogleCalendarService {
     });
   }
 
-
-
-
-  // redirectToGoogleAuth(): void {
-  //   const token = localStorage.getItem('token');
-  //   if (!token) {
-  //     this.router.navigate(['/auth']);
-  //     return;
-  //   }
-
-  //   const headers = new HttpHeaders({
-  //     Authorization: `Bearer ${token}`,
-  //   });
-
-  //   const redirectPath = '/events'; // vagy ahová vissza akarod irányítani
-
-  //   this.http.get<{ url: string }>(`${this.apiUrl}/auth/google?redirect=${encodeURIComponent(redirectPath)}`,{ headers })
-  //     .subscribe({
-  //       next: (res) => {
-  //         // ✅ Itt történik az átirányítás!
-  //         window.location.href = res.url;
-  //       },
-  //       error: (err) => {
-  //         this.errorService.showError('Nem sikerült elindítani a Google hitelesítést');
-  //         console.error(err);
-  //       }
-  //     });
-  // }
-
-
   exchangeCodeForTokens(code: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/auth/google/callback?code=${code}`).pipe(
-      tap(() => console.log('✅ Tokenek lekérve és tárolhatók')),
+      tap(() => console.log('Tokenek lekérve és tárolhatók')),
       catchError((err) => {
         this.errorService.showError('Hiba a tokencsere során');
         return throwError(() => new Error(err.message));

@@ -16,8 +16,8 @@ export class UsersComponent implements OnInit {
   isAdmin: boolean = false;
   isCoordinator: boolean = false;
 
-  isAdminUser: boolean = false; // Admin jogosultság változó
-  isCoordinatorUser: boolean = false; // Koordinátor jogosultság változó
+  isAdminUser: boolean = false;
+  isCoordinatorUser: boolean = false;
 
   currentPage: number = 1;
   itemsPerPage: number = 5;
@@ -46,16 +46,16 @@ export class UsersComponent implements OnInit {
 
     this.authService.loadUser();
     this.authService.users$.subscribe(users => {
-      this.users = users; // Amint az adat megérkezik, frissül a `users` tömb
-      this.isAdminUser = users.some(user => user.role === 'admin'); // Ellenőrizzük, hogy van-e admin jogosultságú felhasználó
-      this.isCoordinatorUser = users.some(user => user.role === 'coordinator'); // Ellenőrizzük, hogy van-e koordinátor jogosultságú felhasználó
+      this.users = users;
+      this.isAdminUser = users.some(user => user.role === 'admin');
+      this.isCoordinatorUser = users.some(user => user.role === 'coordinator');
 
       console.log("Users updated:", this.users);
     });
   }
 
   updateUserRole(user: any, newRole: string): void {
-    if (user.role === newRole) return; // nincs változás
+    if (user.role === newRole) return;
 
     this.authService.updateUserRole(user.id, newRole).subscribe({
       next: () => {
