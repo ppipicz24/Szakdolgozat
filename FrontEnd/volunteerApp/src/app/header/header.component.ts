@@ -28,7 +28,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     this.userSubscription = this.authService.user$.subscribe(user => {
       if (user) {
-        console.log("User updated in header:", user);
         this.isAuth = true;
         this.name = user.name || null;
         this.isAdmin = user.role === 'admin';

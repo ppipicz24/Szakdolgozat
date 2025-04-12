@@ -39,7 +39,7 @@ export class AuthService {
       const now = Math.floor(Date.now() / 1000); // jelenlegi idő másodpercben
       return decoded.exp < now;
     } catch (e) {
-      return true; 
+      return true;
     }
   }
 
@@ -85,7 +85,6 @@ export class AuthService {
         });
 
     return this.httpClient.get<{ users: AuthData[] }>(url, {headers}).pipe(
-      tap((resData) => console.log('API response:', resData)),
       catchError((error) => {
         this.errorService.showError(error.message);
         return throwError(() => new Error(error.message));
@@ -136,7 +135,6 @@ export class AuthService {
 
           localStorage.setItem('token', token);
           localStorage.setItem('user', JSON.stringify(user));
-          console.log(user)
 
           this.tokenSubject.next(token);
           this.userSubject.next(user);
@@ -237,7 +235,6 @@ export class AuthService {
     });
 
     return this.httpClient.patch(`${this.apiUrl}/users/${userId}/role`, { role }, { headers }).pipe(
-      tap(() => console.log("Szerepkör frissítve:", role)),
       catchError(err => {
         this.errorService.showError(err.message);
         return throwError(() => new Error(err.message));

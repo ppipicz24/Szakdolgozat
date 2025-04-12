@@ -32,9 +32,9 @@
         <td>{{event.age}}</td>
         <td>{{event.numberOfPeople}}</td>
         <td>
-          <a class="btn" (click)="onClickApply(event.id)">
-            {{ registeredEventIds.has(event.id) ? "Lejelentkezés" : "Jelentkezés" }}
-          </a>
+            <button class="apply" (click)="onClickApply(event.id)" [disabled]="eventPastCheck(event)">
+              {{ registeredEventIds.has(event.id) ? "Lejelentkezés" : "Jelentkezés" }}
+            </button>
         </td>
           <td *ngIf="isAdmin"><img src="delete.png" class="delete" (click)="deleteEvent(event.id)"></td>
           <td *ngIf="isAdmin" class="entitlement"><img src="info.png" class="details" (click)="eventDetails(event.id)"></td>
@@ -55,7 +55,6 @@
   <section class="filter-table" *ngIf="paginatedRegisteredEvents.length > 0">
     <aside class="buttons-aside">
       <div class="buttons">
-        <!-- <button class="export" (click)="onConnectGoogleCalendar()">Google Calendar engedélyezése</button> -->
         <button (click)="onConnectGoogleCalendar()" class="export" [disabled]="isCalendarConnected">
           {{ isCalendarConnected ? '✅ Csatlakozva Google Calendarhoz' : 'Google Calendar csatlakozás' }}
         </button>
@@ -85,9 +84,11 @@
         <td>{{event.isHungarian ? "Magyar" : "Angol"}}</td>
         <td>{{event.age}}</td>
         <td>{{event.numberOfPeople}}</td>
-        <td><a class="btn" (click)="onClickApply(event.id)">Lejelentkezés</a></td>
-        <td>
-          <img src="google-calendar.png" class="calendar" (click)="exportEventToGoogle(event.id)">
+        <td><button class="apply" (click)="onClickApply(event.id)" [disabled]="eventPastCheck(event)">Lejelentkezés</button></td>
+        <td >
+          <button (click)="exportEventToGoogle(event.id)" class="calendar-button">
+            <img src="google-calendar.png" class="calendar" alt="">
+          </button>
         </td>
       </tr>
     </table>

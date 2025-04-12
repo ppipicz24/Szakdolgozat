@@ -23,7 +23,6 @@ export const routes: Routes = [
   {path: 'password-reset', component: PasswordResetComponent},
   {path: 'forget-password', component: ForgetPasswordComponent},
   {path: 'event-details', component: EventDetailsComponent},
-  // {path: 'auth/google/callback',component: GoogleCallbackComponent},
   { path: 'google/callback', component: GoogleCallbackComponent }
 
 

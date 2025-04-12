@@ -32,7 +32,6 @@ export class EventDetailsComponent {
     this.eventService.getRegisteredUsers(eventId).subscribe({
       next: (users) => {
         this.registeredUsers = users;
-        console.log('Regisztrált felhasználók:', this.registeredUsers);
       },
       error: (err) => {
         console.error('Nem sikerült lekérni a regisztráltakat:', err);

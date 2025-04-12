@@ -50,7 +50,6 @@ export class UsersComponent implements OnInit {
       this.isAdminUser = users.some(user => user.role === 'admin');
       this.isCoordinatorUser = users.some(user => user.role === 'coordinator');
 
-      console.log("Users updated:", this.users);
     });
   }
 
@@ -60,10 +59,8 @@ export class UsersComponent implements OnInit {
     this.authService.updateUserRole(user.id, newRole).subscribe({
       next: () => {
         user.role = newRole;
-        console.log(`${user.name} szerepköre frissítve: ${newRole}`);
       },
       error: (err) => {
-        console.error("Hiba a szerepkör frissítésekor:", err);
         this.errorService.showError("Nem sikerült frissíteni a szerepkört.");
       }
     });

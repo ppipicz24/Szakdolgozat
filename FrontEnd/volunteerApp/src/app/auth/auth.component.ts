@@ -22,12 +22,11 @@ export class AuthComponent implements OnInit {
 
 ngOnInit(): void {
     this.authService.users$.subscribe(users => {
-      this.users = users; // Amint az adat megérkezik, frissül a `users` tömb
-      console.log("Users updated:", this.users);
+      this.users = users;
     });
 
     this.route.queryParams.subscribe(params => {
-      this.isLoginMode = params['mode'] !== 'register'; // Ha mode=register, akkor regisztráció módba váltunk
+      this.isLoginMode = params['mode'] !== 'register';
     });
 }
 
@@ -43,7 +42,6 @@ ngOnInit(): void {
     this.formSubmitted = true;
 
     if (!form.valid) {
-      console.log('Invalid form');
       return;
     }
 
@@ -54,17 +52,12 @@ ngOnInit(): void {
     const phoneNumber = form.value.phone;
 
     if (this.isLoginMode) {
-
-      console.log("Bejelentkezési kísérlet:", email, password);
-
       this.authService.login(email, password).subscribe({
         next: () => {
-          console.log("Login sikeres!");
           this.error = "";
           this.router.navigate(['/home']);
         },
         error: (err) => {
-          console.error("Login hiba:", err);
           this.error = err.message || "Hiba történt a bejelentkezés során.";
         }
       });
@@ -72,13 +65,11 @@ ngOnInit(): void {
     } else {
       if (password !== password2) {
         this.error = 'A jelszavak nem egyeznek meg!';
-        console.log(this.error);
         return;
       }
 
-      console.log('Register');
       const newUser: AuthData = {
-        id: Math.random().toString(), // Ideiglenes azonosító, a backend generálhat valódit
+        id: Math.random().toString(),
         name: name,
         email: email,
         password: password,

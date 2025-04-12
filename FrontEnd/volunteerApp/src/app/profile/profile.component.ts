@@ -21,7 +21,6 @@ export class ProfileComponent implements OnInit {
         this.user = userData;
       },
       error: (err) => {
-        console.error("Error fetching profile:", err);
         this.errorMessage = "Nem sikerült lekérni a profiladatokat.";
         this.router.navigate(['/auth']); // Ha nincs bejelentkezve, loginra irányítjuk
       }

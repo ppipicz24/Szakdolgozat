@@ -21,8 +21,7 @@ export class NewDateComponent implements OnInit {
 
   ngOnInit() {
     this.eventService.events$.subscribe(events => {
-      this.events = events; // Amint az adat megérkezik, frissül az `events` tömb
-      console.log("Events updated:", this.events);
+      this.events = events;
     });
   }
 
@@ -30,7 +29,6 @@ export class NewDateComponent implements OnInit {
     this.formSubmitted = true;
 
     if (!form.valid) {
-      console.log('Invalid form');
       return;
     }
 

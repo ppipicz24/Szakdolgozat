@@ -33,7 +33,6 @@ export class EventService {
     return this.http
       .get<{ events: EventModel[] }>(this.apiUrl, { headers })
       .pipe(
-        tap((resData) => console.log('API response:', resData)),
         catchError((error) => {
           this.errorService.showError(error.message);
           return throwError(() => new Error(error.message));
@@ -105,9 +104,6 @@ export class EventService {
     return this.http
       .post(`${this.apiUrl}/${eventId}/register`, {}, { headers })
       .pipe(
-        tap(() => {
-          console.log(`Successfully registered to event: ${eventId}`);
-        }),
         catchError((err) => {
           this.errorService.showError(err.message);
           return throwError(() => new Error(err.message));
@@ -130,7 +126,6 @@ export class EventService {
     return this.http
       .delete(`${this.apiUrl}/${eventId}/unregister`, { headers })
       .pipe(
-        tap(() => console.log('Lejelentkezés sikeres:', eventId)),
         catchError((error) => {
           this.errorService.showError(error.message);
           return throwError(() => new Error(error.message));
@@ -151,7 +146,6 @@ export class EventService {
     });
 
     return this.http.get<string[]>(`${this.myEventsUrl}`, { headers }).pipe(
-      tap((ids) => console.log('Saját események ID-i:', ids)),
       catchError((error) => {
         this.errorService.showError(error.message);
         return throwError(() => new Error(error.message));
@@ -174,7 +168,6 @@ export class EventService {
     return this.http
       .get<any>(`${this.apiUrl}/${eventId}/registered-users`, { headers })
       .pipe(
-        tap((users) => console.log('✔️ Regisztrált felhasználók:', users)),
         catchError((error) => {
           this.errorService.showError(error.message);
           return throwError(() => new Error(error.message));

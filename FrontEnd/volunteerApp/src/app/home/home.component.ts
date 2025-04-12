@@ -32,10 +32,17 @@ export class HomeComponent implements OnInit {
   googleAccessToken: string | null = null;
   googleRefreshToken: string | null = null;
 
+  isEventPast: boolean[] = [];
+  eventPast: EventModel[] = [];
+
 
   get paginatedEvents(): EventModel[] {
     const start = (this.currentPage - 1) * this.itemsPerPage;
     const end = start + this.itemsPerPage;
+    // Szűrjük ki a múltbeli eseményeket
+    this.eventPast = this.events.filter((event) => new Date(event.date) < new Date());
+    this.isEventPast = this.events.map((event) => new Date(event.date) < new Date())
+
     return this.events.slice(start, end);
   }
 
@@ -84,8 +91,9 @@ export class HomeComponent implements OnInit {
 
     this.eventService.events$.subscribe((events) => {
       this.events = events.sort(
-        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
       );
+      this.eventPast = this.events.filter((event) => new Date(event.date) < new Date());
     });
 
     this.eventService.getMyEventIds().subscribe({
@@ -100,9 +108,13 @@ export class HomeComponent implements OnInit {
       },
     });
 
-    // 👇 Token cseréje, ha a Google auth-ból tért vissza
+    // Token cseréje, ha a Google auth-ból tért vissza
     this.handleGoogleRedirect();
     this.checkGoogleCalendarConnection();
+  }
+
+  eventPastCheck(event: EventModel): boolean {
+    return new Date(event.date) < new Date();
   }
 
   checkGoogleCalendarConnection(): void {
@@ -114,10 +126,6 @@ export class HomeComponent implements OnInit {
 
   handleGoogleRedirect() {
     const code = this.route.snapshot.queryParamMap.get('code');
-    const redirect = this.route.snapshot.queryParamMap.get('redirect');
-    console.log('🔑 code:', code);
-
-    console.log('🔁 redirect param:', redirect);
 
     if (code) {
       this.googleCalendarService.exchangeCodeForTokens(code).subscribe({
@@ -198,7 +206,6 @@ export class HomeComponent implements OnInit {
   deleteEvent(eventId: string) {
     this.eventService.deleteEvent(eventId).subscribe({
       next: () => {
-        console.log('Event deleted:', eventId);
 
         this.events = this.events.filter((event) => event.id !== eventId);
 
@@ -211,7 +218,6 @@ export class HomeComponent implements OnInit {
         );
       },
       error: (err) => {
-        console.error('Esemény törlése sikertelen:', err);
         this.errorService.showError(err.message);
       },
     });
@@ -225,11 +231,9 @@ export class HomeComponent implements OnInit {
 
     this.eventService.getRegisteredUsers(eventId).subscribe({
       next: (event) => {
-
         console.log('Esemény részletei:', event);
       },
       error: (err) => {
-        console.error('Esemény részleteinek betöltése sikertelen:', err);
         this.errorService.showError(err.message);
       },
     });

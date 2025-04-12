@@ -18,13 +18,11 @@ export class EditComponent {
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit() {
-    // **Lekérjük a bejelentkezett user adatait**
     this.authService.getProfile().subscribe({
       next: (userData) => {
         this.user = userData;
       },
       error: (err) => {
-        console.error("Error fetching profile:", err);
         this.errorMessage = "Nem sikerült lekérni a profiladatokat.";
       }
     });
@@ -44,11 +42,9 @@ export class EditComponent {
 
     this.authService.updateProfile(updatedData).subscribe({
       next: (response) => {
-        console.log("Profile updated successfully:", response);
         this.successMessage = "Profil sikeresen módosítva!";
         this.errorMessage = null;
 
-        // **Frissítsük a fejléc állapotát, de csak ha a user adatok változtak**
         this.authService.getProfile().subscribe({
           next: (user) => {
             if (user) {
@@ -60,7 +56,6 @@ export class EditComponent {
         setTimeout(() => this.router.navigate(['/profile']), 2000);
       },
       error: (err) => {
-        console.error("Error updating profile:", err);
         this.errorMessage = err.error?.message || "Nem sikerült frissíteni a profilodat.";
       }
     });

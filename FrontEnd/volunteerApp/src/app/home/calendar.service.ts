@@ -42,19 +42,16 @@ export class GoogleCalendarService {
       { headers }
     ).subscribe({
       next: (res) => {
-        console.log('Redirecting to Google:', res.url);
         window.location.href = res.url;
       },
       error: (err) => {
         this.errorService.showError('Nem sikerült elindítani a Google hitelesítést');
-        console.error(err);
       }
     });
   }
 
   exchangeCodeForTokens(code: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/auth/google/callback?code=${code}`).pipe(
-      tap(() => console.log('Tokenek lekérve és tárolhatók')),
       catchError((err) => {
         this.errorService.showError('Hiba a tokencsere során');
         return throwError(() => new Error(err.message));
@@ -84,7 +81,6 @@ export class GoogleCalendarService {
     return this.http
       .post(`${this.apiUrl}/export-calendar`, body, { headers })
       .pipe(
-        tap(() => console.log('Esemény exportálva a Google Naptárba')),
         catchError((error) => {
           this.errorService.showError(error.message);
           return throwError(() => new Error(error.message));
