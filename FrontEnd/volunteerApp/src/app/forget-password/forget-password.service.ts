@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ForgotPasswordService {
-  private apiUrl = 'http://localhost:3000/forgot-password'; // Backend API URL
+  private apiUrl = 'http://localhost:3000/auth/forgot-password'; 
 
   constructor(private http: HttpClient) {}
 

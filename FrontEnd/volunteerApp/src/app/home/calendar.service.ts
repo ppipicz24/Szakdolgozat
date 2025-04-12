@@ -9,7 +9,7 @@ import { ErrorService } from '../shared/error.service';
   providedIn: 'root'
 })
 export class GoogleCalendarService {
-  private apiUrl = 'http://localhost:3000'; // állítsd be a saját backend URL-ed
+  private apiUrl = 'http://localhost:3000/google'; // állítsd be a saját backend URL-ed
 
   constructor(
     private http: HttpClient,

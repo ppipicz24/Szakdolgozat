@@ -9,9 +9,9 @@ import { Router } from '@angular/router';
   providedIn: 'root',
 })
 export class EventService {
-  private apiUrl = 'http://localhost:3000/events';
+  private apiUrl = 'http://localhost:3000/events/events';
 
-  private myEventsUrl = 'http://localhost:3000/my-events';
+  private myEventsUrl = 'http://localhost:3000/events/my-events';
   private errorService = inject(ErrorService);
 
   private eventSubject = new BehaviorSubject<EventModel[]>([]);

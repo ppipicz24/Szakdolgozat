@@ -26,7 +26,8 @@ export class AuthService {
   private tokenSubject = new BehaviorSubject<string | null>(null);
   token$ = this.tokenSubject.asObservable();
 
-  private apiUrl = 'http://localhost:3000';
+  private authUrl = 'http://localhost:3000/auth';
+  private userUrl = 'http://localhost:3000/users'; // Az API URL-je, ahol a profil frissítése történik
   private tokenExpirationTimer: any;
 
   constructor(private router: Router) {
@@ -93,7 +94,7 @@ export class AuthService {
   }
 
   loadUser() {
-    this.fetchUser(`${this.apiUrl}/users`).subscribe({
+    this.fetchUser(`${this.userUrl}/users`).subscribe({
       next: (users: any) => {
         this.usersSubject.next(users); // Frissítjük a BehaviorSubject-et
       },
@@ -103,7 +104,7 @@ export class AuthService {
 
   addUser(user: AuthData) {
     return this.httpClient
-      .post<AuthData>(`${this.apiUrl}/register`, user)
+      .post<AuthData>(`${this.authUrl}/register`, user)
       .subscribe({
         next: (user) => {
           const currentUsers = this.usersSubject.value;
@@ -119,7 +120,7 @@ export class AuthService {
 
     return this.httpClient
       .post<{ token: string; user: any }>(
-        `${this.apiUrl}/login`,
+        `${this.authUrl}/login`,
         { email, password },
         { observe: 'response' }
       )
@@ -160,7 +161,7 @@ export class AuthService {
     this.getProfile().subscribe({
       next: (user) => {
         this.userSubject.next(user);
-        localStorage.setItem('user', JSON.stringify(user)); // 💾 fontos!
+        localStorage.setItem('user', JSON.stringify(user));
       },
       error: (err) => {
         console.error('Nem sikerült frissíteni a user-t:', err);
@@ -194,7 +195,7 @@ export class AuthService {
       Authorization: `Bearer ${token}`,
     });
 
-    return this.httpClient.get(`${this.apiUrl}/profile`, { headers });
+    return this.httpClient.get(`${this.userUrl}/profile`, { headers });
   }
 
   updateProfile(updatedData: any): Observable<any> {
@@ -210,7 +211,7 @@ export class AuthService {
     });
 
     return this.httpClient
-      .patch(`${this.apiUrl}/profile`, updatedData, { headers })
+      .patch(`${this.userUrl}/profile`, updatedData, { headers })
       .pipe(
         tap((response) => {
 
@@ -234,7 +235,7 @@ export class AuthService {
       Authorization: `Bearer ${token}`
     });
 
-    return this.httpClient.patch(`${this.apiUrl}/users/${userId}/role`, { role }, { headers }).pipe(
+    return this.httpClient.patch(`${this.userUrl}/users/${userId}/role`, { role }, { headers }).pipe(
       catchError(err => {
         this.errorService.showError(err.message);
         return throwError(() => new Error(err.message));
