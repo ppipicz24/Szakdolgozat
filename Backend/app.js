@@ -14,7 +14,7 @@ const app = express();
 
 cron.schedule('*/30 * * * *', async () => {
   try {
-    await axios.get('http://localhost:3000/send-reminder')
+    await axios.get('http://localhost:3000/events/send-reminder')
 
   } catch (error) {
     console.error('Hiba az automatikus emlékeztető ellenőrzés során:', error.message);
