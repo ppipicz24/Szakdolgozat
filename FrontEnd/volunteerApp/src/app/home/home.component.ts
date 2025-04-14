@@ -19,6 +19,7 @@ export class HomeComponent implements OnInit {
 
 
   isAdmin: boolean = false;
+  isCoordinator: boolean = false;
 
   events: EventModel[] = [];
   registeredEventIds: Set<string> = new Set();
@@ -76,6 +77,7 @@ export class HomeComponent implements OnInit {
     this.authService.getProfile().subscribe((user) => {
       this.name = user.name;
       this.isAdmin = user.role === 'admin';
+      this.isCoordinator = user.role === 'coordinator';
 
       const calendarData = user.googleCalendar || {};
       this.isCalendarConnected = calendarData.connected ?? false;

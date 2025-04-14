@@ -22,7 +22,7 @@
         <th>Létszám</th>
         <th></th>
         <th *ngIf="isAdmin"></th>
-        <th *ngIf="isAdmin"></th>
+        <th *ngIf="isAdmin || isCoordinator"></th>
       </tr>
       <tr *ngFor="let event of paginatedEvents">
         <td>{{event.name}}</td>
@@ -37,7 +37,7 @@
             </button>
         </td>
           <td *ngIf="isAdmin"><img src="delete.png" class="delete" (click)="deleteEvent(event.id)"></td>
-          <td *ngIf="isAdmin" class="entitlement"><img src="info.png" class="details" (click)="eventDetails(event.id)"></td>
+          <td *ngIf="isAdmin || isCoordinator" class="entitlement"><img src="info.png" class="details" (click)="eventDetails(event.id)"></td>
         </tr>
     </table>
 
