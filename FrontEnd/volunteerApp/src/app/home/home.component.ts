@@ -116,7 +116,7 @@ export class HomeComponent implements OnInit {
   }
 
   eventPastCheck(event: EventModel): boolean {
-    return new Date(event.date) < new Date();
+    return new Date(event.date) < new Date() && new Date(event.date) < new Date(Date.now() - 24 * 60 * 60 * 1000);
   }
 
   checkGoogleCalendarConnection(): void {
