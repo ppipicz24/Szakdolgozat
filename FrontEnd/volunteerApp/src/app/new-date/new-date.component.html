@@ -16,11 +16,11 @@
       <div class="error-message" *ngIf="(date.invalid && date.touched) || (formSubmitted && date.invalid)">
         <span *ngIf="date.errors?.['required']">A mező kitöltése kötelező.</span>
       </div>
-      <input type="number" name="time" id="time" class="inp" placeholder="Időtartam" ngModel required min="1"
+      <input type="number" name="time" id="time" class="inp" placeholder="Idő" ngModel required min="1" max="24"
         #time="ngModel"/>
       <div class="error-message" *ngIf="(time.invalid && time.touched) || (formSubmitted && time.invalid)">
         <span *ngIf="time.errors?.['required']">A mező kitöltése kötelező.</span>
-        <span *ngIf="time.errors?.['min']">Az időtartam legalább 1 óra kell legyen.</span>
+        <span *ngIf="time.errors?.['min'] || time.errors?.['max']">Az óra 1 és 24 között kell, hogy legyen.</span>
 
     </div>
       <input type="number" name="numberOfPeople" id="numberOfPeople" class="inp" placeholder="Létszám" ngModel required
