@@ -6,7 +6,7 @@ const { isAdminOrCoordinator, isAdmin } = require("../middlewares/rolesMiddlewar
 
 const dbUser = db.users;
 
-router.get("/users",authenticateToken,isAdminOrCoordinator, async (req, res) => {
+router.get("/",authenticateToken,isAdminOrCoordinator, async (req, res) => {
     try {
       const usersRef = dbUser;
       const snapshot = await usersRef.once("value");
@@ -39,7 +39,6 @@ router.get("/profile", authenticateToken, async (req, res) => {
     const userData = snapshot.val();
     delete userData.password;
 
-    // Ha nincs benne googleCalendar, akkor adj vissza üres objektumot
     if (!userData.googleCalendar) {
       userData.googleCalendar = {
         connected: false,
@@ -47,6 +46,7 @@ router.get("/profile", authenticateToken, async (req, res) => {
         refreshToken: ''
       };
     }
+
 
     console.log(userData);
 
@@ -96,7 +96,7 @@ router.patch("/profile", authenticateToken, async (req, res) => {
   }
 });
 
-router.patch("/users/:id/role",authenticateToken,isAdmin,async (req, res) => {
+router.patch("/:id/role",authenticateToken,isAdmin,async (req, res) => {
     try {
       const userId = req.params.id;
       const { role } = req.body;

@@ -9,6 +9,21 @@ const router = express.Router();
 const dbEvents = db.events;
 const dbUser = db.users;
 
+async function refreshAccessTokenOrRedirect(refreshToken, res) {
+  try {
+    oauth2Client.setCredentials({ refresh_token: refreshToken });
+    const { credentials } = await oauth2Client.refreshAccessToken();
+    return credentials.access_token;
+  } catch (err) {
+    if (err.response?.data?.error === 'invalid_grant') {
+      console.warn('Lejárt vagy érvénytelen refresh token. Átirányítás a bejelentkezésre.');
+      return res.redirect(302, REDIRECT_URI); // Átirányítás frontend hitelesítésre
+    } else {
+      throw err; // Egyéb hibákat továbbdobunk
+    }
+  }
+}
+
 router.get('/auth/google', authenticateToken, (req, res) => {
     const rawState = req.query.state;
     const authUrl = oAuth2Client.generateAuthUrl({
@@ -37,7 +52,10 @@ router.get('/auth/google', authenticateToken, (req, res) => {
       }
   
       const { tokens } = await oAuth2Client.getToken(code);
+
       oAuth2Client.setCredentials(tokens);
+
+
   
       await admin.database().ref(`users/${userId}/googleCalendar`).set({
         connected: true,
@@ -45,6 +63,7 @@ router.get('/auth/google', authenticateToken, (req, res) => {
         refreshToken: tokens.refresh_token,
         connectedAt: Date.now(),
       });
+
   
       const redirectUrl = `http://localhost:4200/google/callback?redirect=${redirectPath}`;
       return res.redirect(302, redirectUrl);
@@ -61,6 +80,10 @@ router.get('/auth/google', authenticateToken, (req, res) => {
       if (!eventId || !access_token) {
         return res.status(400).json({ message: 'eventId és access_token szükséges' });
       }
+
+      if(!refresh_token) {
+        return res.status(400).json({ message: 'refresh_token szükséges' });
+      }
   
       // Esemény lekérése
       const eventSnap = await dbEvents.child(eventId).once('value');
@@ -73,7 +96,6 @@ router.get('/auth/google', authenticateToken, (req, res) => {
       oAuth2Client.setCredentials({ access_token, refresh_token });
   
       const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
-  
   
       const calendarEvent = {
         summary: event.name,

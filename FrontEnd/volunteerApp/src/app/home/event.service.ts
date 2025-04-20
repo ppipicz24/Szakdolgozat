@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
   providedIn: 'root',
 })
 export class EventService {
-  private apiUrl = 'http://localhost:3000/events/events';
+  private apiUrl = 'http://localhost:3000/events';
 
   private myEventsUrl = 'http://localhost:3000/events/my-events';
   private errorService = inject(ErrorService);

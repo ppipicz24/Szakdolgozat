@@ -9,7 +9,7 @@ const dbEvents = db.events;
 const dbUser = db.users;
 const dbUserEvents = db.userEvents;
 
-router.post("/events", authenticateToken, isAdminOrCoordinator, async (req, res) => {
+router.post("/", authenticateToken, isAdminOrCoordinator, async (req, res) => {
     try {
         const { name, date, time, numberOfPeople, age, isHungarian, isFull } =
             req.body;
@@ -71,7 +71,7 @@ router.post("/events", authenticateToken, isAdminOrCoordinator, async (req, res)
 }
 );
 
-router.get("/events", authenticateToken, async (req, res) => {
+router.get("/", authenticateToken, async (req, res) => {
     try {
         const eventsRef = dbEvents;
         const snapshot = await eventsRef.once("value");
@@ -88,26 +88,26 @@ router.get("/events", authenticateToken, async (req, res) => {
     }
 });
 
-router.get("/events/:id", authenticateToken, isAdminOrCoordinator,
-    async (req, res) => {
-        try {
-            const eventId = req.params.id;
-            const eventRef = dbEvents.child(eventId);
-            const snapshot = await eventRef.once("value");
+// router.get("/events/:id", authenticateToken, isAdminOrCoordinator,
+//     async (req, res) => {
+//         try {
+//             const eventId = req.params.id;
+//             const eventRef = dbEvents.child(eventId);
+//             const snapshot = await eventRef.once("value");
 
-            if (!snapshot.exists()) {
-                return res.status(404).json({ message: "Event not found" });
-            }
+//             if (!snapshot.exists()) {
+//                 return res.status(404).json({ message: "Event not found" });
+//             }
 
-            const eventData = snapshot.val();
-            res.status(200).json(eventData);
-        } catch (error) {
-            res.status(500).json({ message: "Server error", error: error.message });
-        }
-    }
-);
+//             const eventData = snapshot.val();
+//             res.status(200).json(eventData);
+//         } catch (error) {
+//             res.status(500).json({ message: "Server error", error: error.message });
+//         }
+//     }
+// );
 
-router.delete("/events/:id", authenticateToken, isAdmin, async (req, res) => {
+router.delete("/:id", authenticateToken, isAdmin, async (req, res) => {
     try {
         const eventId = req.params.id;
 
@@ -141,7 +141,7 @@ router.delete("/events/:id", authenticateToken, isAdmin, async (req, res) => {
     }
 });
 
-router.post("/events/:id/register", authenticateToken, async (req, res) => {
+router.post("/:id/register", authenticateToken, async (req, res) => {
 
     try {
         const eventId = req.params.id;
@@ -200,7 +200,7 @@ router.post("/events/:id/register", authenticateToken, async (req, res) => {
     }
 });
 
-router.delete("/events/:id/unregister", authenticateToken, async (req, res) => {
+router.delete("/:id/unregister", authenticateToken, async (req, res) => {
     try {
         const eventId = req.params.id;
         const userId = req.user.id;
@@ -342,7 +342,7 @@ router.get("/my-events", authenticateToken, async (req, res) => {
     }
 });
 
-router.get("/events/:id/registered-users", authenticateToken, isAdminOrCoordinator, async (req, res) => {
+router.get("/:id/registered-users", authenticateToken, isAdminOrCoordinator, async (req, res) => {
     try {
         const eventId = req.params.id;
         const snapshot = await dbUserEvents.once("value");

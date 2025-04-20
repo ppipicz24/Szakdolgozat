@@ -27,7 +27,8 @@ export class AuthService {
   token$ = this.tokenSubject.asObservable();
 
   private authUrl = 'http://localhost:3000/auth';
-  private userUrl = 'http://localhost:3000/users'; // Az API URL-je, ahol a profil frissítése történik
+  private userUrl = 'http://localhost:3000';
+  private profileUrl = 'http://localhost:3000/users';
   private tokenExpirationTimer: any;
 
   constructor(private router: Router) {
@@ -195,7 +196,7 @@ export class AuthService {
       Authorization: `Bearer ${token}`,
     });
 
-    return this.httpClient.get(`${this.userUrl}/profile`, { headers });
+    return this.httpClient.get(`${this.profileUrl}/profile`, { headers });
   }
 
   updateProfile(updatedData: any): Observable<any> {
@@ -211,7 +212,7 @@ export class AuthService {
     });
 
     return this.httpClient
-      .patch(`${this.userUrl}/profile`, updatedData, { headers })
+      .patch(`${this.profileUrl}/profile`, updatedData, { headers })
       .pipe(
         tap((response) => {
 

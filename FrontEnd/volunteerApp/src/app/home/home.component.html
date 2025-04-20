@@ -55,8 +55,9 @@
   <section class="filter-table" *ngIf="paginatedRegisteredEvents.length > 0">
     <aside class="buttons-aside">
       <div class="buttons">
-        <button (click)="onConnectGoogleCalendar()" class="export" [disabled]="isCalendarConnected">
-          {{ isCalendarConnected ? 'Csatlakozva Google Calendarhoz' : 'Google Calendar csatlakozás' }}
+        <button (click)="onConnectGoogleCalendar()" class="export">
+          <!-- {{ isCalendarConnected ? 'Csatlakozva Google Calendarhoz' : 'Google Calendar csatlakozás' }} -->
+        Google Calendar csatlakozás
         </button>
         <div class="pagination2">
 
