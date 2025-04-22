@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ChangePasswordService } from './password-reset.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 
 @Component({
@@ -19,7 +19,7 @@ export class PasswordResetComponent {
   success: boolean = false;
   message: string = '';
 
-  constructor(private passwordReset: ChangePasswordService) {}
+  constructor(private passwordReset: ChangePasswordService, private router: Router) {}
 
   onSubmit(): void {
     if (!this.oldPassword || !this.newPassword || !this.confirmPassword) {
@@ -38,6 +38,7 @@ export class PasswordResetComponent {
       next: (response) => {
         this.message = 'Jelszavad sikeresen megváltozott!';
         this.error = '';
+        setTimeout(() => this.router.navigate(['/profile']), 2000);
       },
       error: (err) => {
         this.error = err.error?.message || 'Hiba történt a jelszó frissítése közben!';
