@@ -1,4 +1,4 @@
-const {db} = require("../firebase");
+const {db} = require("../database/firebase");
 
 const isAdminOrCoordinator = async (req, res, next) => {
     try {

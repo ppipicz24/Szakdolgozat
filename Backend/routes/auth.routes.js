@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { db } = require("../firebase");
+const { db } = require("../database/firebase");
 const sendEmail = require("../utils/email");
 const authenticateToken = require("../middlewares/authMiddleware");
 

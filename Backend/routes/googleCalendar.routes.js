@@ -1,28 +1,12 @@
 const express = require('express');
 const { google } = require('googleapis');
-const { db, admin } = require('../firebase');
+const { db, admin } = require('../database/firebase');
 const authenticateToken = require('../middlewares/authMiddleware');
 const oAuth2Client = require('./googleClient');
 
 const router = express.Router();
 
 const dbEvents = db.events;
-const dbUser = db.users;
-
-async function refreshAccessTokenOrRedirect(refreshToken, res) {
-  try {
-    oauth2Client.setCredentials({ refresh_token: refreshToken });
-    const { credentials } = await oauth2Client.refreshAccessToken();
-    return credentials.access_token;
-  } catch (err) {
-    if (err.response?.data?.error === 'invalid_grant') {
-      console.warn('Lejárt vagy érvénytelen refresh token. Átirányítás a bejelentkezésre.');
-      return res.redirect(302, REDIRECT_URI); // Átirányítás frontend hitelesítésre
-    } else {
-      throw err; // Egyéb hibákat továbbdobunk
-    }
-  }
-}
 
 router.get('/auth/google', authenticateToken, (req, res) => {
     const rawState = req.query.state;
@@ -30,10 +14,9 @@ router.get('/auth/google', authenticateToken, (req, res) => {
       access_type: 'offline',
       scope: ['https://www.googleapis.com/auth/calendar'],
       prompt: 'consent',
-      state: rawState, // <- már JSON string (!!!)
+      state: rawState,
       redirect_uri: 'http://localhost:3000/google/auth/google/callback'
     });
-  
     res.json({ url: authUrl });
   });
   

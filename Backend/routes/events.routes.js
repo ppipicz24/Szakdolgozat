@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { db } = require("../firebase");
+const { db } = require("../database/firebase");
 const authenticateToken = require("../middlewares/authMiddleware");
 const { isAdminOrCoordinator, isAdmin } = require("../middlewares/rolesMiddleware");
 const sendEmail = require("../utils/email");

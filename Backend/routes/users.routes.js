@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { db } = require("../firebase");
+const { db } = require("../database/firebase");
 const authenticateToken = require("../middlewares/authMiddleware");
 const { isAdminOrCoordinator, isAdmin } = require("../middlewares/rolesMiddleware");
 
@@ -47,9 +47,6 @@ router.get("/profile", authenticateToken, async (req, res) => {
       };
     }
 
-
-    console.log(userData);
-
     res.status(200).json(userData);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
@@ -60,9 +57,9 @@ router.get("/profile", authenticateToken, async (req, res) => {
 router.patch("/profile", authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { name, phoneNumber, email, username } = req.body;
+    const { name, phoneNumber, email } = req.body;
 
-    if (!name && !phoneNumber && !email && !username) {
+    if (!name && !phoneNumber && !email) {
       return res
         .status(400)
         .json({ message: "At least one field is required for update" });
@@ -83,7 +80,6 @@ router.patch("/profile", authenticateToken, async (req, res) => {
     if (name) updates.name = name;
     if (phoneNumber) updates.phoneNumber = phoneNumber;
     if (email) updates.email = email;
-    if (username) updates.username = username;
 
     await userRef.update(updates);
 
