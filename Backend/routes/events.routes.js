@@ -88,7 +88,6 @@ router.get("/", authenticateToken, async (req, res) => {
     }
 });
 
-// router.get("/events/:id", authenticateToken, isAdminOrCoordinator,
 //     async (req, res) => {
 //         try {
 //             const eventId = req.params.id;

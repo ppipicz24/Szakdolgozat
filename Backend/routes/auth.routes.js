@@ -57,7 +57,7 @@ router.post("/register", async (req, res) => {
       createdAt: Date.now(),
     });
 
-    res.status(200).json({ message: "User registered successfully" });
+    res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -73,7 +73,7 @@ router.post("/login", async (req, res) => {
 
     const snapshot = await dbUser.orderByChild("email").equalTo(email).once("value");
     if (!snapshot.exists()) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(400).json({ message: "Invalid email or password" });
     }
 
     let userId, userData;
@@ -84,7 +84,7 @@ router.post("/login", async (req, res) => {
 
     const validPassword = await bcrypt.compare(password, userData.password);
     if (!validPassword) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(400).json({ message: "Invalid email or password" });
     }
 
     const token = jwt.sign({
@@ -143,7 +143,7 @@ router.post("/forgot-password", async (req, res) => {
 
     await sendEmail(userData.email, "Password Reset", `Your new password is: ${newPassword}`);
 
-    res.status(200).json({ message: "New password sent to your email" });
+    res.status(201).json({ message: "New password sent to your email" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -164,7 +164,7 @@ router.post("/new-password", authenticateToken, async (req, res) => {
 
     const validPassword = await bcrypt.compare(oldPassword, userData.password);
     if (!validPassword) {
-      return res.status(401).json({ message: "Invalid old password" });
+      return res.status(400).json({ message: "Invalid old password" });
     }
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
@@ -177,7 +177,7 @@ router.post("/new-password", authenticateToken, async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await dbUser.child(userId).update({ password: hashedPassword });
 
-    res.status(200).json({ message: "Password updated successfully" });
+    res.status(201).json({ message: "Password updated successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
