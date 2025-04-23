@@ -147,8 +147,6 @@ export class HomeComponent implements OnInit {
     }
   }
 
-
-
   exportEventToGoogle(eventId: string) {
     if (!this.googleAccessToken || !this.googleRefreshToken) {
       console.warn('Nincs Google token. Előbb hitelesíteni kell!');
@@ -166,8 +164,6 @@ export class HomeComponent implements OnInit {
         },
       });
   }
-
-
 
   onClickApply(eventId: string) {
     if (this.registeredEventIds.has(eventId)) {

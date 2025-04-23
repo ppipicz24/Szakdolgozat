@@ -3,7 +3,9 @@
   <nav class="nav">
     <ul class="nav-list left">
       <ng-container *ngIf="isAuth">
-        <li routerLinkActive="active"><a class="nav-link" routerLink="/home">Események</a></li>
+        <li routerLinkActive="active">
+          <a class="nav-link" routerLink="/home">Események</a>
+        </li>
         <li routerLinkActive="active"><a class="nav-link" routerLink="/profile">Profil</a></li>
         <li routerLinkActive="active" *ngIf="isAdmin || isCoordinator"><a class="nav-link" routerLink="/users">Felhasználók</a></li>
         <li routerLinkActive="active"><a class="nav-link" routerLink="/new-date" *ngIf="isAdmin || isCoordinator">Új esemény</a></li>

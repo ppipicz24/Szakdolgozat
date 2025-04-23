@@ -12,13 +12,14 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrl: './auth.component.css',
 })
 export class AuthComponent implements OnInit {
-  constructor(private authService: AuthService, private router: Router, private route: ActivatedRoute) {}
 
   isLoginMode: boolean = true;
   error: string = '';
   formSubmitted: boolean = false;
 
   users: AuthData[] = [];
+
+constructor(private authService: AuthService, private router: Router, private route: ActivatedRoute) {}
 
 ngOnInit(): void {
     this.authService.users$.subscribe(users => {

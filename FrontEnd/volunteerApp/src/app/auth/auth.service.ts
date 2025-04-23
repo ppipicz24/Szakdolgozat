@@ -103,6 +103,7 @@ export class AuthService {
     });
   }
 
+
   addUser(user: AuthData) {
     return this.httpClient
       .post<AuthData>(`${this.authUrl}/register`, user)
