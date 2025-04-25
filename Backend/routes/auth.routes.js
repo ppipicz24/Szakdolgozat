@@ -93,7 +93,7 @@ router.post("/login", async (req, res) => {
       name: userData.name,
       email: userData.email,
       phoneNumber: userData.phoneNumber,
-    }, jwt_secret, { expiresIn: "20m" });
+    }, jwt_secret, { expiresIn: "30m" });
 
     res.status(200).json({
       message: "Login successful",
