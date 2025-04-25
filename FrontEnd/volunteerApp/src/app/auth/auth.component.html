@@ -12,12 +12,13 @@
         </div>
 
         <!-- Jelszó -->
-        <input type="password" name="password" id="password" placeholder="Jelszó" class="inp" ngModel required
+        <input type="password" name="password" id="password" placeholder="Jelszó" class="inp" ngModel required pattern="^(?=.*[A-Z])(?=.*\d).+$"
           minlength="8" #password="ngModel" />
         <div class="error-message"
           *ngIf="(password.invalid && password.touched) || (formSubmitted && password.invalid)">
           <span *ngIf="password.errors?.['required']">A mező kitöltése kötelező.</span>
-          <span *ngIf="password.errors?.['minlength']">A jelszó legalább 8 karakter hosszú kell legyen.</span>
+          <span *ngIf="password.errors?.['pattern'] || password.errors?.['minlength']">A jelszónak tartalmaznia kell
+            legalább egy nagybetűt, egy számot és legalább 8 karakternek kell lennie.</span>
         </div>
       </div>
       <button type="submit" class="submit" [disabled]="loginForm.invalid">Bejelentkezés</button>
