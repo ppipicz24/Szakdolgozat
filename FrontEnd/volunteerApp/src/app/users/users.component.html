@@ -41,7 +41,7 @@
       <div class="pagination">
         <button (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1">Előző</button>
 
-        <span>Oldal {{ currentPage }} / {{ totalPages }}</span>
+        <span>{{ currentPage }} / {{ totalPages }}</span>
 
         <button (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPages">Következő</button>
       </div>

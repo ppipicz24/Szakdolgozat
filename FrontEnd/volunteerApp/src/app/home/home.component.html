@@ -8,7 +8,7 @@
     <div class="pagination">
       <button class="paginationButton" (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1">Előző</button>
 
-      <span>Oldal {{ currentPage }} / {{ totalPages }}</span>
+      <span>{{ currentPage }} / {{ totalPages }}</span>
 
       <button class="paginationButton" (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPages">Következő</button>
     </div>
@@ -62,7 +62,7 @@
         <div class="pagination2">
 
           <button class="paginationButton" (click)="registeredCurrentPage = registeredCurrentPage - 1" [disabled]="registeredCurrentPage === 1">Előző</button>
-          <span>Oldal {{ registeredCurrentPage }} / {{ registeredTotalPages }}</span>
+          <span>{{ registeredCurrentPage }} / {{ registeredTotalPages }}</span>
           <button class="paginationButton" (click)="registeredCurrentPage = registeredCurrentPage + 1" [disabled]="registeredCurrentPage === registeredTotalPages">Következő</button>
         </div>
       </div>
