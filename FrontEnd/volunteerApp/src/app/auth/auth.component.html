@@ -4,11 +4,11 @@
     <form class="form" #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)">
       <div class="text-input">
         <!-- Felhasználónév -->
-        <input type="email" name="email" id="email" placeholder="Email cím" class="inp" ngModel required
+        <input type="email" name="email" id="email" placeholder="Email cím" class="inp" ngModel required email
           #email="ngModel" />
-        <div class="error-message"
-          *ngIf="(email.invalid && email.touched) || (formSubmitted && email.invalid)">
+        <div class="error-message" *ngIf="(email.invalid && email.touched) || (formSubmitted && email.invalid)">
           <span *ngIf="email.errors?.['required']">A mező kitöltése kötelező.</span>
+          <span *ngIf="email.errors?.['email']">Az email formátuma nem megfelelő.</span>
         </div>
 
         <!-- Jelszó -->
@@ -20,7 +20,7 @@
           <span *ngIf="password.errors?.['minlength']">A jelszó legalább 8 karakter hosszú kell legyen.</span>
         </div>
       </div>
-      <button type="submit" class="submit">Bejelentkezés</button>
+      <button type="submit" class="submit" [disabled]="loginForm.invalid">Bejelentkezés</button>
       <p class="forgot-password"><a (click)="onForgetPassword()"routerLink="/forget-password">Elfelejtett jelszó</a>
         </p>
       <p class="toRegister"><a (click)="onSwitchMode()"> Nincs fiókom, regisztrálok</a></p>
@@ -78,7 +78,7 @@
 
       </div>
 
-      <button type="submit" class="submit">Regisztráció</button>
+      <button type="submit" class="submit" [disabled]="signUpForm.invalid">Regisztráció</button>
       <p class="toLogin"><a (click)="onSwitchMode()">Van fiókom, bejelentkezek</a></p>
       <p class="help-block">{{error}}</p>
     </form>

@@ -19,5 +19,11 @@ p{
   font-size: 14px;
 }
 
+.submit:disabled{
+  background-color: #8e94c5;
+  cursor: not-allowed;
+  border: #8e94c5;
+}
+
 
 
